@@ -1,2 +1,2 @@
-# Package name
-Package Name
+# Symposium
+Interaction of multiple language models.
