@@ -1,2 +1,2 @@
 # Symposium
-Interaction of multiple language models.
+Interaction with multiple language models.
