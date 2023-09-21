@@ -15,6 +15,14 @@ classifiers=[
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
 ]
+keywords = ["symposium", "conversations", "ai"]
+dependencies = [
+    "requests >= 2.31.0",
+    "PyGithub >= 1.59.0",
+    "urllib3 >= 2.0.4",
+    "openai >= 0.28.0",
+    "tiktoken >= 0.4.0"
+]
 [project.urls]
 "Homepage" = "https://github.com/multilogue/symposium"
 "Bug Tracker" = "https://github.com/multilogue/sumposium/issues"
