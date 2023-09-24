@@ -29,11 +29,11 @@ headers = {
 }
 
 
-def answer(messages,
-           functions=None,
-           function_call=None,
-           model=default_model,
-           **kwargs):
+def gpt_answer(messages,
+               functions=None,
+               function_call=None,
+               model=default_model,
+               **kwargs):
 
     """A simple requests call to ChatGPT chat completions endpoint.
         kwargs:
@@ -68,10 +68,10 @@ def answer(messages,
         return responses
 
 
-def fill_in(text_before,
-            text_after,
-            model=completion_model,
-            **kwargs):
+def gpt_fill_in(text_before,
+                text_after,
+                model=completion_model,
+                **kwargs):
 
     """A completions endpoint call through requests.
         kwargs:
@@ -104,9 +104,9 @@ def fill_in(text_before,
         return responses
 
 
-def continuations(text_before,
-                  model=completion_model,
-                  **kwargs) -> List:
+def gpt_continuations(text_before,
+                      model=completion_model,
+                      **kwargs) -> List:
 
     """A completions endpoint call through requests.
         kwargs:
@@ -141,14 +141,14 @@ def continuations(text_before,
         return responses
 
 
-def count_tokens(string: str, model=default_model) -> int:
+def gpt_count_tokens(string: str, model=default_model) -> int:
     """Returns the number of tokens in a text string."""
     encoding = tiktoken.encoding_for_model(model)
     num_tokens = len(encoding.encode(string))
     return num_tokens
 
 
-def embeddings(input_list: List[str], model=embedding_model, **kwargs) -> List[Dict]:
+def gpt_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> List[Dict]:
     """Returns the embedding of a text string.
         kwargs:
         user = string
@@ -181,18 +181,18 @@ if __name__ == '__main__':
     #     # 2949: -100.0,     # No
     #     # 198: -1.0         # /n
     # }
-    kwa = {
-        "temperature":      1.0,  # up to 2.0
-        # "top_p":            0.5,  # up to 1.0
-        "max_tokens":       256,
-        "n":                3,
-        "best_of":          4,
-        "frequency_penalty": 2.0,
-        "presence_penalty": 2.0,
-        # "logprobs":         3,  # up to 5
-        # "logit_bias":       bias
-        "stop": ["stop"]
-    }
+    # kwa = {
+    #     "temperature":      1.0,  # up to 2.0
+    #     # "top_p":            0.5,  # up to 1.0
+    #     "max_tokens":       256,
+    #     "n":                3,
+    #     "best_of":          4,
+    #     "frequency_penalty": 2.0,
+    #     "presence_penalty": 2.0,
+    #     # "logprobs":         3,  # up to 5
+    #     # "logit_bias":       bias
+    #     "stop": ["stop"]
+    # }
     #
     # msgs = [
     #     {
@@ -204,8 +204,8 @@ if __name__ == '__main__':
     #         "content": the_text_before
     #     }
     # ]
-    # # inp = [the_text_after, the_text_after]
-    # # emb = embeddings(inp, model='text-similarity-davinci-001')
+    inp = [the_text_after, the_text_after]
+    # emb = embeddings(inp, model='text-similarity-davinci-001')
     # #
     # # num = count_tokens(prompt1)
     # #
@@ -213,11 +213,11 @@ if __name__ == '__main__':
     # #                       text_after=text_after,
     # #                       **kwa)
     #
-    continuations = continuations(text_before=the_text_before,
-                                  # model='gpt-3.5-turbo-instruct',
-                                  **kwa)
-    #
-    # answers = answer(messages=msgs, **kwa)
+    # continuations = continuations(text_before=the_text_before,
+    #                               # model='gpt-3.5-turbo-instruct',
+    #                               **kwa)
+    # #
+    # # answers = answer(messages=msgs, **kwa)
     """
     https://openai.com/blog/gpt-4-api-general-availability
     text-similarity-ada-001
@@ -225,7 +225,7 @@ if __name__ == '__main__':
     text-similarity-curie-001
     text-similarity-davinci-001
     """
-    model = 'text-search-davinci-doc-001' # 'text-search-davinci-doc-001'
-    inp = ["existence"]
-    emb = embeddings(inp, model=model)
+    # model = 'text-search-davinci-doc-001' # 'text-search-davinci-doc-001'
+    # inp = ["existence"]
+    emb = gpt_embeddings(inp) #, model=model)
     print('ok')
