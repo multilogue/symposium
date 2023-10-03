@@ -181,18 +181,18 @@ if __name__ == '__main__':
     #     # 2949: -100.0,     # No
     #     # 198: -1.0         # /n
     # }
-    # kwa = {
-    #     "temperature":      1.0,  # up to 2.0
-    #     # "top_p":            0.5,  # up to 1.0
-    #     "max_tokens":       256,
-    #     "n":                3,
-    #     "best_of":          4,
-    #     "frequency_penalty": 2.0,
-    #     "presence_penalty": 2.0,
-    #     # "logprobs":         3,  # up to 5
-    #     # "logit_bias":       bias
-    #     "stop": ["stop"]
-    # }
+    kwa = {
+        "temperature":      1.0,  # up to 2.0
+        # "top_p":            0.5,  # up to 1.0
+        "max_tokens":       256,
+        "n":                3,
+        "best_of":          4,
+        "frequency_penalty": 2.0,
+        "presence_penalty": 2.0,
+        # "logprobs":         3,  # up to 5
+        # "logit_bias":       bias
+        "stop": ["stop"]
+    }
     #
     # msgs = [
     #     {
@@ -213,9 +213,9 @@ if __name__ == '__main__':
     # #                       text_after=text_after,
     # #                       **kwa)
     #
-    # continuations = continuations(text_before=the_text_before,
-    #                               # model='gpt-3.5-turbo-instruct',
-    #                               **kwa)
+    continuations = gpt_continuations(text_before=the_text_before,
+                                      model='gpt-3.5-turbo-instruct',
+                                      **kwa)
     # #
     # # answers = answer(messages=msgs, **kwa)
     """

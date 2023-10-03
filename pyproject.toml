@@ -3,7 +3,7 @@ requires = ["setuptools>=67.0"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "symposium"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
     {name="Alexander Fedotov", email="alex.fedotov@aol.com"},
 ]
@@ -21,7 +21,8 @@ dependencies = [
     "PyGithub >= 1.59.0",
     "urllib3 >= 1.26.16",
     "openai >= 0.28.0",
-    "tiktoken >= 0.4.0"
+    "tiktoken >= 0.4.0",
+    "boto3 >= 1.28.57",
 ]
 [project.urls]
 "Homepage" = "https://github.com/multilogue/symposium"

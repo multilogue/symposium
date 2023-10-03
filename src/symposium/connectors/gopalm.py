@@ -78,9 +78,14 @@ def palm_continuations(text_before,
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
-    garbage = [{"category": 0, "threshold": 4}, {"category": 1, "threshold": 4},
-               {"category": 2, "threshold": 4}, {"category": 3, "threshold": 4},
-               {"category": 4, "threshold": 4}, {"category": 5, "threshold": 4}]
+    garbage = [{"category": "HARM_CATEGORY_UNSPECIFIED",    "threshold": "BLOCK_NONE"},  # 0-th category
+               {"category": "HARM_CATEGORY_DEROGATORY",     "threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_TOXICITY",       "threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_VIOLENCE",       "threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_SEXUAL",         "threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_MEDICAL",        "threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_DANGEROUS",      "threshold": "BLOCK_NONE"},
+    ]
 
     responses = []
     json_data = {"prompt": {"text": text_before},
@@ -97,15 +102,19 @@ def palm_continuations(text_before,
             json=json_data,
         )
         if response.status_code == requests.codes.ok:
-            for count, candidate in enumerate(response.json()['candidates']):
-                item = {"index": count, "text": candidate['output']}
-                responses.append(item)
+            if response.json().get('filters', None):
+                raise Exception('Results filtered')
+            else:
+                for count, candidate in enumerate(response.json()['candidates']):
+                    item = {"index": count,
+                            "text": candidate['output'],
+                            "finish_reason": 'stop'}
+                    responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
         return responses
     except Exception as e:
-        print("Unable to generate Completions response")
-        print(f"Exception: {e}")
+        print(f"Unable to generate continuations response, {e}")
         return responses
 
 
@@ -136,34 +145,34 @@ def palm_embeddings(input_list: List[str],
 
 
 if __name__ == '__main__':
-    context = "This conversation will be happening between Albert and Niels"
-    examples = [
-            {
-                "input": {"author": "Albert", "content": "We didn't talk about the quantum mechanics lately..."},
-                "output": {"author": "Niels", "content": "Yes indeed."}
-            }
-        ]
-    messages = [
-            {
-                "author": "Albert",
-                "content": "Can we change human nature?"
-            }, {
-                "author": "Niels",
-                "content": "Not clear..."
-            }, {
-                "author": "Albert",
-                "content": "Seriously, can we?"
-            }
-        ]
+    # context = "This conversation will be happening between Albert and Niels"
+    # examples = [
+    #         {
+    #             "input": {"author": "Albert", "content": "We didn't talk about the quantum mechanics lately..."},
+    #             "output": {"author": "Niels", "content": "Yes indeed."}
+    #         }
+    #     ]
+    # messages = [
+    #         {
+    #             "author": "Albert",
+    #             "content": "Can we change human nature?"
+    #         }, {
+    #             "author": "Niels",
+    #             "content": "Not clear..."
+    #         }, {
+    #             "author": "Albert",
+    #             "content": "Seriously, can we?"
+    #         }
+    #     ]
     kwa = {
-        "n": 3,
+        "n": 1,
         "top_k": 100
     }
-    a = palm_answer(context, examples, messages, **kwa)
+    # a = palm_answer(context, examples, messages, **kwa)
     # e = palm_embeddings(["Can you distinguish an idiot from a human?",
     #                     "Can you distinguish an stupid from a human?"]
     #                    )
     #
-    # a = palm_continuations(text_before="Can you distinguish an idiot from a human?", **kwa)
+    a = palm_continuations(text_before="Can human nature be changed?", **kwa)
     print('ok')
 

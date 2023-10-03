@@ -8,7 +8,5 @@ LICENSE file in the root directory of this source tree.
 from symposium.recorders.githublog import InputGitAuthor
 
 
-
-
 if __name__ == '__main__':
     pass
