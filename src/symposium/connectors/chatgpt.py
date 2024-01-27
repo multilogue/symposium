@@ -172,7 +172,28 @@ def gpt_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> Li
         return embeddings_list
 
 
+def gpt_models() -> List:
+    """Returns a list of available models."""
+    models_list = []
+    try:
+        response = requests.get(f"{api_base}/models",
+                                headers=headers)
+        if response.status_code == requests.codes.ok:
+            for model in response.json()['data']:
+                models_list.append(model['id'])
+            return models_list
+        else:
+            print(f"Request status code: {response.status_code}")
+            return []
+    except Exception as e:
+        print("Unable to generate Models response")
+        print(f"Exception: {e}")
+        return models_list
+
+
 if __name__ == '__main__':
+    mod = gpt_models()
+    # print(mod)
     the_text_before = 'Can human nature be changed?'
     the_text_after = 'That is why human nature can not be changed.'
     # # bias the words "Yes" and "No" or the new line "\n".

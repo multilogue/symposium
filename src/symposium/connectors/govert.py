@@ -10,24 +10,21 @@ from typing import List, Dict
 import requests
 
 
-palm_key                = environ.get("PALM_KEY", "")
-palm_api_base           = "https://generativelanguage.googleapis.com/v1beta3"
-palm_completion_model   = environ.get("PALM_DEFAULT_TEXT_MODEL", "models/text-bison-001")
-palm_chat_model         = environ.get("PALM_DEFAULT_CHAT_MODEL", "models/chat-bison-001")
-palm_embedding_model    = environ.get("PALM_DEFAULT_EMBEDDING_MODEL", "models/embedding-gecko-001")
+vert_completion_model   = environ.get("PALM_DEFAULT_TEXT_MODEL", "models/text-bison-001")
+vert_chat_model         = environ.get("PALM_DEFAULT_CHAT_MODEL", "models/chat-bison-001")
+vert_embedding_model    = environ.get("PALM_DEFAULT_EMBEDDING_MODEL", "models/embedding-gecko-001")
 
 
-def palm_answer(context: str,
+def vert_answer(context: str,
                 examples,
                 messages,
-                model=palm_chat_model,
+                model=vert_chat_model,
                 **kwargs):
 
     """A simple requests call to Palm message generation endpoint.
         kwargs:
             temperature     = 0 to 1.0
             top_p           = 0.0 to 1.0
-            top_k           = None (number of considered tokens)
             n               = 1 to 8 # number of candidates
             max_tokens      = number of tokens
     """
@@ -66,7 +63,7 @@ def palm_answer(context: str,
         return responses
 
 
-def palm_continuations(text_before,
+def vert_continuations(text_before,
                        model=palm_completion_model,
                        **kwargs) -> List:
 
@@ -93,6 +90,7 @@ def palm_continuations(text_before,
                  "temperature":     kwargs.get("temperature", 0.5),
                  "candidateCount":  kwargs.get("n", 1),
                  "safetySettings":  garbage,
+
                  "maxOutputTokens": kwargs.get("max_tokens", 100),
                  "topP":            kwargs.get("top_p", 0.1),
                  "topK":            kwargs.get("top_k", None)}
@@ -119,7 +117,7 @@ def palm_continuations(text_before,
         return responses
 
 
-def palm_embeddings(input_list: List[str],
+def vert_embeddings(input_list: List[str],
                     model=palm_embedding_model, **kwargs) -> List[Dict]:
     """Returns the embedding of a list of text strings.
     """
@@ -174,6 +172,6 @@ if __name__ == '__main__':
     #                     "Can you distinguish an stupid from a human?"]
     #                    )
     #
-    a = palm_continuations(text_before="Can human nature be changed?", **kwa)
+    a = vert_continuations(text_before="Can human nature be changed?", **kwa)
     print('ok')
 

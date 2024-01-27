@@ -22,10 +22,13 @@ def extract_between_tags(tag: str, string: str, strip: bool = True, alt=True) ->
         if strip:
             ext_list = [e.strip() for e in ext_list]
         if alt and not ext_list:
-            ext_list = re.findall(f"<{tag}\s?>(.+?)<{tag}\s?>", string, re.DOTALL)
+            ext_list = re.find
+            all(f"<{tag}\s?>(.+?)<{tag}\s?>", string, re.DOTALL)
             if strip:
                 ext_list = [e.strip() for e in ext_list]
         return ext_list
+
+
     except:
         return extract_between_tags(tag, string+'' + tag + '>', strip, alt)
 
