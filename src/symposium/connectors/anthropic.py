@@ -19,7 +19,7 @@ def get_client():
             # api_key="my_api_key",
         )
     except ImportError:
-        print("anthropic packageis not installed")
+        print("anthropic package is not installed")
 
     return client
 
@@ -32,7 +32,7 @@ def complete(client, prompt, **kwargs):
         completion = client.completions.create(
             model=kwargs.get("model", "claude-instant-1.2"),
             max_tokens_to_sample=kwargs.get("max_tokens_to_sample", 5),
-            prompt=f"{HUMAN_PREFIX}I am Alex{MACHINE_PREFIX}",
+            prompt=f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}",
             stop_sequences=kwargs.get(
                 "stop_sequences",
                 [HUMAN_PREFIX, MACHINE_PREFIX]),
