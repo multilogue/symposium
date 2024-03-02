@@ -10,7 +10,7 @@ from typing import List, Dict
 import requests
 
 
-palm_key                = environ.get("PALM_KEY", "")
+palm_key                = environ.get("GOOGLE_API_KEY","") # PALM_KEY", "")
 palm_api_base           = "https://generativelanguage.googleapis.com/v1beta3"
 palm_completion_model   = environ.get("PALM_DEFAULT_TEXT_MODEL", "models/text-bison-001")
 palm_chat_model         = environ.get("PALM_DEFAULT_CHAT_MODEL", "models/chat-bison-001")
