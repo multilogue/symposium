@@ -8,8 +8,7 @@ LICENSE file in the root directory of this source tree.
 from typing import List, Dict
 from os import environ
 import requests
-import tiktoken
-import openai
+# import tiktoken
 
 api_key             = environ.get("OPENAI_API_KEY")
 api_key_path        = environ.get("OPENAI_API_KEY_PATH")
@@ -141,11 +140,11 @@ def gpt_continuations(text_before,
         return responses
 
 
-def gpt_count_tokens(string: str, model=default_model) -> int:
-    """Returns the number of tokens in a text string."""
-    encoding = tiktoken.encoding_for_model(model)
-    num_tokens = len(encoding.encode(string))
-    return num_tokens
+# def gpt_count_tokens(string: str, model=default_model) -> int:
+#     """Returns the number of tokens in a text string."""
+#     encoding = tiktoken.encoding_for_model(model)
+#     num_tokens = len(encoding.encode(string))
+#     return num_tokens
 
 
 def gpt_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> List[Dict]:
@@ -234,9 +233,7 @@ if __name__ == '__main__':
     # #                       text_after=text_after,
     # #                       **kwa)
     #
-    continuations = gpt_continuations(text_before=the_text_before,
-                                      model='gpt-3.5-turbo-instruct',
-                                      **kwa)
+    continuations = gpt_continuations(text_before=the_text_before,               model='gpt-3.5-turbo-instruct', **kwa)
     # #
     # # answers = answer(messages=msgs, **kwa)
     """
