@@ -59,7 +59,7 @@ def gemini_content(contents: List,
                 for count, candidate in enumerate(response.json()['candidates']):
                     item = {"index": count,
                             "text": candidate['content']['parts'][0]['text'],
-                            "finish_reason": 'stop'}
+                            "finish_reason": candidate['finishReason']}
                     responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
@@ -96,20 +96,21 @@ def gemini_embeddings(input_list: List[str],
 
 
 if __name__ == '__main__':
-    # contents = [{"parts": [
-    #     {"text": "Human nature can not be changed, because ... "}
-    # ]
-    #     }
-    # ]
     contents = [
-        {
-            "role": "user",
-            "parts": [
-                {"text": "Human nature can not be changed, because ... (give your answer)"},
-                {"text": "... and that is why human nature can not be changed."}
+        {"parts": [
+            {"text": "Human nature can not be changed, because ... "}
             ]
         }
     ]
+    # contents = [
+    #     {
+    #         "role": "user",
+    #         "parts": [
+    #             {"text": "Human nature can not be changed, because ... (give your answer)"},
+    #             {"text": "... and that is why human nature can not be changed."}
+    #         ]
+    #     }
+    # ]
     kwa = {
         "top_k": 10
     }
