@@ -12,7 +12,7 @@ import requests
 
 api_key             = environ.get("ANTHROPIC_API_KEY")
 
-organization        = environ.get("ANTHROPIC_ORGANIZATION")
+organization        = environ.get("ANTHROPIC_ORGANIZATION", "")
 api_base            = environ.get("ANTHROPIC_API_BASE", "https://api.anthropic.com/v1")
 api_type            = environ.get("ANTHROPIC_VERSION", "2023-06-01")
 default_model       = environ.get("ANTHROPIC_DEFAULT_MODEL", "claude-instant-1.2")
@@ -64,16 +64,16 @@ def claud_complete(prompt, **kwargs):
         return responses
 
 
-def claud_message(client, messages, **kwargs):
+def claud_message(messages, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    msg = None
+    responses = None
     json_data = {
         "model":                kwargs.get("model", message_model),
-        "system":               kwargs.get("system", None),
+        "system":               kwargs.get("system", "answer concisely"),
         "messages":             messages,
         "max_tokens":           kwargs.get("max_tokens", 5),
-        "stop_sequences":       kwargs.get("stop_sequences",['stop', HUMAN_PREFIX, MACHINE_PREFIX]),
+        "stop_sequences":       kwargs.get("stop_sequences",['stop', HUMAN_PREFIX]),
         "stream":               kwargs.get("stream", False),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
@@ -81,21 +81,35 @@ def claud_message(client, messages, **kwargs):
     }
     try:
         response = requests.post(
-            f"{api_base}/message",
+            f"{api_base}/messages",
             headers=headers,
             json=json_data,
         )
         if response.status_code == requests.codes.ok:
-            msg = response.json()
+            obj = response.json()
+            item = {"index": 0,
+                    "author": "model",
+                    "content": obj['content'][0]['text'],
+                    "stop_reason": obj['stop_reason']
+                    }
+            responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
-        return msg
+        return responses
     except Exception as e:
         print("Unable to generate Message response")
         print(f"Exception: {e}")
-        return msg
+        return responses
 
 
 if __name__ == "__main__":
-    completion = claud_complete( "I am Alex")
+    # completion = claud_complete( "I am Alex")
+    messages = [
+        {"role": "user", "content": "I am Alex"}
+    ]
+    kwa = {
+        "temperature": 0.5,
+        "max_tokens": 10,
+    }
+    msg = claud_message(messages, **kwa)
     print("ok")
