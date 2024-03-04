@@ -17,8 +17,8 @@ organization        = environ.get("OPENAI_ORGANIZATION")
 organization_id     = environ.get("OPENAI_ORGANIZATION_ID")
 api_base            = environ.get("OPENAI_API_BASE", "https://api.openai.com/v1")
 api_type            = environ.get("OPENAI_API_TYPE", "open_ai")
-default_model       = environ.get("OPENAI_DEFAULT_MODEL", "gpt-3.5-turbo-0613")
-completion_model    = environ.get("OPENAI_COMPLETION_MODEL",'text-davinci-003')
+default_model       = environ.get("OPENAI_DEFAULT_MODEL", "gpt-3.5-turbo")
+completion_model    = environ.get("OPENAI_COMPLETION_MODEL",'gpt-3.5-turbo-instruct')
 embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-ada-002')  # text-similarity-davinci-001
 
 headers = {

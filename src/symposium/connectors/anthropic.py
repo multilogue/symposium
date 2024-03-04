@@ -10,7 +10,7 @@ HUMAN_PREFIX = "\n\nHuman:"
 MACHINE_PREFIX = "\n\nAssistant:"
 
 
-def get_client():
+def get_claud_client():
     client = None
     try:
         import anthropic
@@ -24,7 +24,7 @@ def get_client():
     return client
 
 
-def complete(client, prompt, **kwargs):
+def claud_complete(client, prompt, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     completion = None
@@ -45,7 +45,7 @@ def complete(client, prompt, **kwargs):
     return completion
 
 
-def message(client, messages, **kwargs):
+def claud_message(client, messages, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     msg = None
@@ -69,6 +69,6 @@ def message(client, messages, **kwargs):
 
 
 if __name__ == "__main__":
-    client = get_client()
-    completion = complete(client, "I am Alex")
+    client = get_claud_client()
+    completion = claud_complete(client, "I am Alex")
     print(completion.completion)
