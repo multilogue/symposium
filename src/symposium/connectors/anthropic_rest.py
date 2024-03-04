@@ -49,8 +49,12 @@ def claud_complete(prompt, **kwargs):
             json=json_data,
         )
         if response.status_code == requests.codes.ok:
-            for choice in response.json()['choices']:
-                responses.append(choice)
+            obj = response.json()
+            item = {"index": 0,
+                    "author": "model",
+                    "content": obj['completion'],
+                    "stop_reason": obj['stop_reason']}
+            responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
         return responses
