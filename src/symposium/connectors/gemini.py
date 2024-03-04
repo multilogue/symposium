@@ -10,10 +10,10 @@ from typing import List, Dict
 import requests
 
 
-gemini_key                = environ.get("GOOGLE_API_KEY","") # GEMINI_KEY", "")
-gemini_api_base           = "https://generativelanguage.googleapis.com/v1beta"
-gemini_content_model   = environ.get("GEMINI_DEFAULT_CONTENT_MODEL", "gemini-1.0-pro")
-gemini_embedding_model    = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "embedding-gecko-001")
+gemini_key              = environ.get("GOOGLE_API_KEY","") # GEMINI_KEY", "")
+gemini_api_base         = "https://generativelanguage.googleapis.com/v1beta"
+gemini_content_model    = environ.get("GEMINI_DEFAULT_CONTENT_MODEL", "gemini-1.0-pro")
+gemini_embedding_model  = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "embedding-001")
 
 
 def gemini_content(contents: List,
@@ -24,7 +24,7 @@ def gemini_content(contents: List,
             temperature     = 0 to 1.0
             top_p           = 0.0 to 1.0
             top_k           = The maximum number of tokens to consider when sampling.
-            n               = 1 to 8 # number of candidates
+            n               = 1 mandatory
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
@@ -41,6 +41,7 @@ def gemini_content(contents: List,
                      "stopSequences":  kwargs.get("stop", ["STOP","Title"]),
                      "temperature":     kwargs.get("temperature", 0.5),
                      "maxOutputTokens": kwargs.get("max_tokens", 1000),
+                     "candidateCount":  kwargs.get("n", 1),
                      "topP":            kwargs.get("top_p", 0.8),
                      "topK":            kwargs.get("top_k", None)
                  }
@@ -59,7 +60,61 @@ def gemini_content(contents: List,
                 for count, candidate in enumerate(response.json()['candidates']):
                     item = {"index": count,
                             "text": candidate['content']['parts'][0]['text'],
-                            "finish_reason": candidate['finishReason']}
+                            "finish_reason": candidate['finishReason'].lower()}
+                    responses.append(item)
+        else:
+            print(f"Request status code: {response.status_code}")
+        return responses
+    except Exception as e:
+        print(f"Unable to generate continuations response, {e}")
+        return responses
+
+
+def gemini_answer(contents: List,
+                  **kwargs) -> List:
+
+    """A completions endpoint call through requests.
+        kwargs:
+            temperature     = 0 to 1.0
+            top_p           = 0.0 to 1.0
+            top_k           = The maximum number of tokens to consider when sampling.
+            n               = 1 mandatory
+            max_tokens      = number of tokens
+            stop            = ["stop"]  array of up to 4 sequences
+    """
+    garbage = [{"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_HATE_SPEECH","threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_HARASSMENT","threshold": "BLOCK_NONE"},
+               {"category": "HARM_CATEGORY_DANGEROUS_CONTENT","threshold": "BLOCK_NONE"}
+    ]
+
+    responses = []
+    # answerStyle =
+    # ANSWER_STYLE_UNSPECIFIED = 0,
+    # ABSTRACTIVE	Succint but abstract style
+    # EXTRACTIVE	Very brief and extractive style.
+    # VERBOSE       Verbose style including extra details. The response may be formatted as a sentence,
+    #               paragraph, multiple paragraphs, or bullet points, etc.
+    json_data = {"contents": contents,
+                 "answerStyle": 1,
+                 "safetySettings":  garbage,
+                 "temperature":     kwargs.get("temperature", 0.5)
+            }
+    try:
+        url = f"{gemini_api_base}/models/{kwargs.get('model', gemini_content_model)}:generateAnswer"
+        response = requests.post(
+            url=url,
+            params=f"key={gemini_key}",
+            json=json_data,
+        )
+        if response.status_code == requests.codes.ok:
+            if response.json().get('filters', None):
+                raise Exception('Results filtered')
+            else:
+                for count, candidate in enumerate(response.json()['candidates']):
+                    item = {"index": count,
+                            "text": candidate['content']['parts'][0]['text'],
+                            "finish_reason": candidate['finishReason'].lower()}
                     responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
@@ -96,28 +151,52 @@ def gemini_embeddings(input_list: List[str],
 
 
 if __name__ == '__main__':
+    # contents = [
+    #     {
+    #         "parts": [
+    #             {"text": "Create a most concise text possible, preferrably just one sentence, answering the question: Can human nature be changed?"}
+    #         ]
+    #     }
+    # ]
     contents = [
-        {"parts": [
-            {"text": "Human nature can not be changed, because ... "}
+        {
+            "role": "user",
+            "parts": [
+                {"text": "Human nature can not be changed, because..."},
+                {"text": "...and that is why human nature can not be changed."}
+            ]
+        },{
+            "role": "model",
+            "parts": [
+                {"text": "Should I synthesize a text that will be placed between these two statements and follow the previous instruction while doing that?"}
+            ]
+        },{
+            "role": "user",
+            "parts": [
+                {"text": "Yes, please do."},
+                {"text": "Create a most concise text possible, preferably just one sentence}"}
             ]
         }
     ]
+    kwa = {
+        "temperature": 1.0,
+        "max_tokens": 1000,
+        "n": 1,
+        "top_p": 0.9,
+        "top_k": 50
+    }
+
+    a = gemini_content(contents=contents, **kwa)
     # contents = [
     #     {
     #         "role": "user",
     #         "parts": [
-    #             {"text": "Human nature can not be changed, because ... (give your answer)"},
-    #             {"text": "... and that is why human nature can not be changed."}
+    #             {"text": "Can human nature be changed?"},
     #         ]
     #     }
     # ]
-    kwa = {
-        "top_k": 10
-    }
-    # a = gemini_answer(context, examples, messages, **kwa)
-    # e = gemini_embeddings(["Can you distinguish an idiot from a human?",
-    #                     "Can you distinguish an stupid from a human?"]
-    #                    )
-    #
-    a = gemini_content(contents=contents, **kwa)
+    # kwa = {
+    #     "temperature": 1.0
+    # }
+    # a = gemini_answer(contents=contents, **kwa)
     print('ok')
