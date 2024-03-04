@@ -67,7 +67,7 @@ def claud_complete(prompt, **kwargs):
 def claud_message(messages, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    responses = None
+    responses = []
     json_data = {
         "model":                kwargs.get("model", message_model),
         "system":               kwargs.get("system", "answer concisely"),
