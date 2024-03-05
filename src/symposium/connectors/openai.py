@@ -42,7 +42,7 @@ def openai_complete(client, prompt, **kwargs):
         completion = client.completions.create(
             model           =kwargs.get("model", completion_model),
             max_tokens      =kwargs.get("max_tokens_to_sample", 5),
-            prompt          =prompt,
+            prompt          =kwargs.get("prompt", prompt),
             suffix          =kwargs.get("suffix", None),
             stop            =kwargs.get("stop_sequences",["stop"]),
             n               =kwargs.get("n", 1),

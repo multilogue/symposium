@@ -29,9 +29,6 @@ headers = {
 
 
 def gpt_message(messages,
-               functions=None,
-               function_call=None,
-               model=default_model,
                **kwargs):
 
     """A simple requests call to ChatGPT chat completions endpoint.
@@ -46,8 +43,8 @@ def gpt_message(messages,
     responses = []
     json_data = {
         "model":            kwargs.get("model", default_model),
-        "messages":         messages,
-        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "messages":         kwargs.get("messages", messages),
+        "max_tokens":       kwargs.get("max_tokens", 5),
         "n":                kwargs.get("n", 1),
         "stop":             kwargs.get("stop_sequences", ["stop"]),
         "response_format":  kwargs.get("response_format", None),
@@ -100,7 +97,7 @@ def gpt_fill_in(text_before, text_after, **kwargs):
         "model":            kwargs.get("model", completion_model),
         "prompt":           text_before,
         "suffix":           text_after,
-        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "max_tokens":       kwargs.get("max_tokens", 5),
         "n":                kwargs.get("n", 1),
         "best_of":          kwargs.get("best_of", 1),
         "stop":             kwargs.get("stop_sequences", ["stop"]),
@@ -149,9 +146,9 @@ def gpt_complete(prompt, **kwargs) -> List:
     responses = []
     json_data = {
         "model":            kwargs.get("model", completion_model),
-        "prompt":           prompt,
+        "prompt":           kwargs.get("prompt", prompt),
         "suffix":           kwargs.get("suffix", None),
-        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "max_tokens":       kwargs.get("max_tokens", 5),
         "n":                kwargs.get("n", 1),
         "best_of":          kwargs.get("best_of", 1),
         "stop":             kwargs.get("stop_sequences", ["stop"]),

@@ -37,7 +37,7 @@ def claud_complete(prompt, **kwargs):
         "model":                kwargs.get("model", completion_model),
         "max_tokens_to_sample": kwargs.get("max_tokens", 5),
         "prompt":               f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}",
-        "stop_sequences":       kwargs.get("stop_sequences",[HUMAN_PREFIX, MACHINE_PREFIX]),
+        "stop_sequences":       kwargs.get("stop_sequences",[HUMAN_PREFIX]),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
         "top_p":                kwargs.get("top_p", 0.5)
@@ -71,7 +71,7 @@ def claud_message(messages, **kwargs):
     json_data = {
         "model":                kwargs.get("model", message_model),
         "system":               kwargs.get("system", "answer concisely"),
-        "messages":             messages,
+        "messages":             kwargs.get("messages", messages),
         "max_tokens":           kwargs.get("max_tokens", 5),
         "stop_sequences":       kwargs.get("stop_sequences",['stop', HUMAN_PREFIX]),
         "stream":               kwargs.get("stream", False),

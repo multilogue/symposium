@@ -17,9 +17,7 @@ palm_chat_model         = environ.get("PALM_DEFAULT_CHAT_MODEL", "chat-bison-001
 palm_embedding_model    = environ.get("PALM_DEFAULT_EMBEDDING_MODEL", "embedding-gecko-001")
 
 
-def palm_message(context: str,
-                 examples,
-                 messages,
+def palm_message(messages,
                  **kwargs):
 
     """A simple requests call to Palm message generation endpoint.
@@ -33,9 +31,9 @@ def palm_message(context: str,
     responses = []
     json_data = {
         "prompt": {
-            "context": context,
-            "examples": examples,
-            "messages": messages
+            "context":  kwargs.get("context", context), # context,
+            "examples": kwargs.get("examples", examples), #examples,
+            "messages": kwargs.get("messages", messages) #messages
         },
         "temperature": kwargs.get("temperature", 0.5),
         "candidateCount": kwargs.get("n", 1),
@@ -88,12 +86,12 @@ def palm_complete(prompt: str,
     ]
 
     responses = []
-    json_data = {"prompt": {"text": prompt},
+    json_data = {"prompt": {"text": kwargs.get("prompt", prompt)},
                  "temperature":     kwargs.get("temperature", 0.5),
                  "candidateCount":  kwargs.get("n", 1),
                  "safetySettings":  garbage,
-                 "maxOutputTokens": kwargs.get("max_tokens", 100),
-                 "topP":            kwargs.get("top_p", 0.1),
+                 "maxOutputTokens": kwargs.get("max_tokens", 10),
+                 "topP":            kwargs.get("top_p", 0.5),
                  "topK":            kwargs.get("top_k", None)}
     try:
         url = f"{palm_api_base}/models/{kwargs.get('model', palm_completion_model)}:generateText"

@@ -16,7 +16,7 @@ gemini_content_model    = environ.get("GEMINI_DEFAULT_CONTENT_MODEL", "gemini-1.
 gemini_embedding_model  = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "embedding-001")
 
 
-def gemini_content(contents: List,
+def gemini_content(messages: List,
                    **kwargs) -> List:
 
     """A completions endpoint call through requests.
@@ -35,14 +35,14 @@ def gemini_content(contents: List,
     ]
 
     responses = []
-    json_data = {"contents": contents,
+    json_data = {"contents": kwargs.get("messages", messages),
                  "safetySettings":  garbage,
                  "generationConfig":{
-                     "stopSequences":  kwargs.get("stop", ["STOP","Title"]),
+                     "stopSequences":  kwargs.get("stop_sequences", ["STOP","Title"]),
                      "temperature":     kwargs.get("temperature", 0.5),
-                     "maxOutputTokens": kwargs.get("max_tokens", 1000),
+                     "maxOutputTokens": kwargs.get("max_tokens", 5),
                      "candidateCount":  kwargs.get("n", 1),
-                     "topP":            kwargs.get("top_p", 0.8),
+                     "topP":            kwargs.get("top_p", 0.9),
                      "topK":            kwargs.get("top_k", None)
                  }
             }
