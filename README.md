@@ -1,5 +1,5 @@
 # Symposium
-Interactions with multiple language models.
+Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' packagee is an attempt to do that. It is a work in progress and will change without notice.
 ## Anthropic
 Import:
 ```python
@@ -88,6 +88,7 @@ from symposium.connectors import gemini_rest as gem
 #### Messages
 ```python
 kwargs = {
+    "model":                "gemini-1.0-pro",
     "messages":             [],
     "stop_sequences":       ["STOP","Title"],
     "temperature":          0.5,
