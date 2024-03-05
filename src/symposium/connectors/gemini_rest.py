@@ -179,6 +179,7 @@ if __name__ == '__main__':
         }
     ]
     kwa = {
+        "model": "gemini-1.5-pro",
         "temperature": 1.0,
         "max_tokens": 1000,
         "n": 1,
@@ -186,7 +187,7 @@ if __name__ == '__main__':
         "top_k": 50
     }
 
-    a = gemini_content(contents=contents, **kwa)
+    a = gemini_content(messages=contents, **kwa)
     # contents = [
     #     {
     #         "role": "user",
