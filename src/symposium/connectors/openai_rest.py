@@ -8,7 +8,7 @@ LICENSE file in the root directory of this source tree.
 from typing import List, Dict
 from os import environ
 import requests
-# import tiktoken
+
 
 api_key             = environ.get("OPENAI_API_KEY")
 api_key_path        = environ.get("OPENAI_API_KEY_PATH")
@@ -44,9 +44,25 @@ def gpt_message(messages,
             max_tokens      = number of tokens
     """
     responses = []
-    json_data = {"model": model, "messages": messages} | kwargs
-    if functions is not None: json_data = json_data | {"functions": functions}
-    if function_call is not None: json_data = json_data | {"function_call": function_call}
+    json_data = {
+        "model":            kwargs.get("model", default_model),
+        "messages":         messages,
+        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "n":                kwargs.get("n", 1),
+        "stop":             kwargs.get("stop_sequences", ["stop"]),
+        "response_format":  kwargs.get("response_format", None),
+        "tools":            kwargs.get("tools", None),
+        "tool_choice":      kwargs.get("tool_choice", None),
+        "seed":             kwargs.get("seed", None),
+        "frequency_penalty":kwargs.get("frequency_penalty", None),
+        "presence_penalty": kwargs.get("presence_penalty", None),
+        "logit_bias":       kwargs.get("logit_bias", None),
+        "logprobs":         kwargs.get("logprobs", None),
+        "top_logprobs":     kwargs.get("top_logprobs", None),
+        "temperature":      kwargs.get("temperature", 0.5),
+        "top_p":            kwargs.get("top_p", 0.5),
+        "user":             kwargs.get("user", None)
+    }
     try:
         response = requests.post(
             f"{api_base}/chat/completions",
@@ -67,12 +83,8 @@ def gpt_message(messages,
         return responses
 
 
-def gpt_fill_in(text_before,
-                text_after,
-                model=completion_model,
-                **kwargs):
-
-    """A completions endpoint call through requests.
+def gpt_fill_in(text_before, text_after, **kwargs):
+    """A specialized completions request.
         kwargs:
             temperature     = 0 to 1.0
             top_p           = 0.0 to 1.0
@@ -84,7 +96,24 @@ def gpt_fill_in(text_before,
             stop = ["stop"]  # array of up to 4 sequences
     """
     responses = []
-    json_data = {"model": model, "prompt": text_before, "suffix": text_after} | kwargs
+    json_data = {
+        "model":            kwargs.get("model", completion_model),
+        "prompt":           text_before,
+        "suffix":           text_after,
+        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "n":                kwargs.get("n", 1),
+        "best_of":          kwargs.get("best_of", 1),
+        "stop":             kwargs.get("stop_sequences", ["stop"]),
+        "seed":             kwargs.get("seed", None),
+        "frequency_penalty":kwargs.get("frequency_penalty", None),
+        "presence_penalty": kwargs.get("presence_penalty", None),
+        "logit_bias":       kwargs.get("logit_bias", None),
+        "logprobs":         kwargs.get("logprobs", None),
+        "top_logprobs":     kwargs.get("top_logprobs", None),
+        "temperature":      kwargs.get("temperature", 0.5),
+        "top_p":            kwargs.get("top_p", 0.5),
+        "user":             kwargs.get("user", None)
+    }
     try:
         response = requests.post(
             f"{api_base}/completions",
@@ -103,10 +132,7 @@ def gpt_fill_in(text_before,
         return responses
 
 
-def gpt_complete(text_before,
-                      model=completion_model,
-                      **kwargs) -> List:
-
+def gpt_complete(prompt, **kwargs) -> List:
     """A completions endpoint call through requests.
         kwargs:
             temperature     = 0 to 1.0
@@ -121,7 +147,25 @@ def gpt_complete(text_before,
             logit_bias      = map token: bias -1.0 to 1.0 (restrictive -100 to 100)
     """
     responses = []
-    json_data = {"model": model, "prompt": text_before} | kwargs
+    json_data = {
+        "model":            kwargs.get("model", completion_model),
+        "prompt":           prompt,
+        "suffix":           kwargs.get("suffix", None),
+        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "n":                kwargs.get("n", 1),
+        "best_of":          kwargs.get("best_of", 1),
+        "stop":             kwargs.get("stop_sequences", ["stop"]),
+        "seed":             kwargs.get("seed", None),
+        "frequency_penalty":kwargs.get("frequency_penalty", None),
+        "presence_penalty": kwargs.get("presence_penalty", None),
+        "logit_bias":       kwargs.get("logit_bias", None),
+        "logprobs":         kwargs.get("logprobs", None),
+        "top_logprobs":     kwargs.get("top_logprobs", None),
+        "temperature":      kwargs.get("temperature", 0.5),
+        "top_p":            kwargs.get("top_p", 0.5),
+        "user":             kwargs.get("user", None)
+    }
+
     try:
         response = requests.post(
             f"{api_base}/completions",
@@ -138,13 +182,6 @@ def gpt_complete(text_before,
         print("Unable to generate Completions response")
         print(f"Exception: {e}")
         return responses
-
-
-# def gpt_count_tokens(string: str, model=default_model) -> int:
-#     """Returns the number of tokens in a text string."""
-#     encoding = tiktoken.encoding_for_model(model)
-#     num_tokens = len(encoding.encode(string))
-#     return num_tokens
 
 
 def gpt_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> List[Dict]:
@@ -201,18 +238,18 @@ if __name__ == '__main__':
     #     # 2949: -100.0,     # No
     #     # 198: -1.0         # /n
     # }
-    kwa = {
-        "temperature":      1.0,  # up to 2.0
-        # "top_p":            0.5,  # up to 1.0
-        "max_tokens":       256,
-        "n":                3,
-        "best_of":          4,
-        "frequency_penalty": 2.0,
-        "presence_penalty": 2.0,
-        # "logprobs":         3,  # up to 5
-        # "logit_bias":       bias
-        "stop": ["stop"]
-    }
+    # kwa = {
+    #     "temperature":      1.0,  # up to 2.0
+    #     # "top_p":            0.5,  # up to 1.0
+    #     "max_tokens":       256,
+    #     "n":                3,
+    #     "best_of":          4,
+    #     "frequency_penalty": 2.0,
+    #     "presence_penalty": 2.0,
+    #     # "logprobs":         3,  # up to 5
+    #     # "logit_bias":       bias
+    #     "stop": ["stop"]
+    # }
     #
     # msgs = [
     #     {
@@ -225,7 +262,10 @@ if __name__ == '__main__':
     #     }
     # ]
     inp = [the_text_before, the_text_after]
-    emb = gpt_embeddings(inp, model='text-embedding-3-large') #, model='text-similarity-davinci-001')
+    kwa = {
+        "dimensions": 1536
+    }
+    emb = gpt_embeddings(inp, model='text-embedding-3-large', **kwa) #, model='text-similarity-davinci-001')
     # #
     # # num = count_tokens(prompt1)
     # #
