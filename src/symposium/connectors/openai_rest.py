@@ -19,7 +19,7 @@ api_base            = environ.get("OPENAI_API_BASE", "https://api.openai.com/v1"
 api_type            = environ.get("OPENAI_API_TYPE", "open_ai")
 default_model       = environ.get("OPENAI_DEFAULT_MODEL", "gpt-3.5-turbo")
 completion_model    = environ.get("OPENAI_COMPLETION_MODEL",'gpt-3.5-turbo-instruct')
-embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-ada-002')  # text-similarity-davinci-001
+embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-3-small')  # text-similarity-davinci-001
 
 headers = {
     "Content-Type": "application/json",
@@ -28,7 +28,7 @@ headers = {
 }
 
 
-def gpt_answer(messages,
+def gpt_message(messages,
                functions=None,
                function_call=None,
                model=default_model,
@@ -103,7 +103,7 @@ def gpt_fill_in(text_before,
         return responses
 
 
-def gpt_continuations(text_before,
+def gpt_complete(text_before,
                       model=completion_model,
                       **kwargs) -> List:
 
@@ -191,7 +191,7 @@ def gpt_models() -> List:
 
 
 if __name__ == '__main__':
-    mod = gpt_models()
+    # mod = gpt_models()
     # print(mod)
     the_text_before = 'Can human nature be changed?'
     the_text_after = 'That is why human nature can not be changed.'
@@ -224,8 +224,8 @@ if __name__ == '__main__':
     #         "content": the_text_before
     #     }
     # ]
-    inp = [the_text_after, the_text_after]
-    # emb = embeddings(inp, model='text-similarity-davinci-001')
+    inp = [the_text_before, the_text_after]
+    emb = gpt_embeddings(inp, model='text-embedding-3-large') #, model='text-similarity-davinci-001')
     # #
     # # num = count_tokens(prompt1)
     # #
@@ -233,7 +233,7 @@ if __name__ == '__main__':
     # #                       text_after=text_after,
     # #                       **kwa)
     #
-    continuations = gpt_continuations(text_before=the_text_before,               model='gpt-3.5-turbo-instruct', **kwa)
+    continuations = gpt_complete(text_before=the_text_before, model='gpt-3.5-turbo-instruct', **kwa)
     # #
     # # answers = answer(messages=msgs, **kwa)
     """
@@ -245,5 +245,5 @@ if __name__ == '__main__':
     """
     # model = 'text-search-davinci-doc-001' # 'text-search-davinci-doc-001'
     # inp = ["existence"]
-    emb = gpt_embeddings(inp) #, model=model)
+    # emb = gpt_embeddings(inp) #, model=model)
     print('ok')
