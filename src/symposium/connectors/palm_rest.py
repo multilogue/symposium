@@ -146,34 +146,4 @@ def palm_embeddings(input_list: List[str],
 
 
 if __name__ == '__main__':
-    context = "This conversation will be happening between Albert and Niels"
-    examples = [
-            {
-                "input": {"author": "Albert", "content": "We didn't talk about the quantum mechanics lately..."},
-                "output": {"author": "Niels", "content": "Yes indeed."}
-            }
-        ]
-    messages = [
-            {
-                "author": "Albert",
-                "content": "Can we change human nature?"
-            }, {
-                "author": "Niels",
-                "content": "Not clear..."
-            }, {
-                "author": "Albert",
-                "content": "Seriously, can we?"
-            }
-        ]
-    kwa = {
-        "n": 1,
-        "top_k": 100
-    }
-    a = palm_message(context, examples, messages, **kwa)
-    # e = palm_embeddings(["Can you distinguish an idiot from a human?",
-    #                     "Can you distinguish an stupid from a human?"]
-    #                    )
-    #
-    # a = palm_complete(prompt="Can human nature be changed?", **kwa)
-    print('ok')
-
+    print('you called main')
