@@ -5,7 +5,9 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-def get_client():
+
+
+def gemini_get_client():
     client = None
     try:
         import google.generativeai as genai
@@ -18,6 +20,12 @@ def get_client():
     return client
 
 
+def gemini_content(client, **kwargs):
+    """ All parameters should be in kwargs, but they are optional
+    """
+    response = client.generate_content("What is the meaning of life?")
+    return response
+
+
 if __name__ == "__main__":
-    client = get_client()
-    print("ok")
+    print("you launched main.")
