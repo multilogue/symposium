@@ -27,14 +27,14 @@ headers = {
 }
 
 
-def claud_complete(prompt, **kwargs):
+def claud_complete(prompt=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     responses = []
     json_data = {
         "model":                kwargs.get("model", completion_model),
         "max_tokens_to_sample": kwargs.get("max_tokens", 5),
-        "prompt":               f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}",
+        "prompt":               kwargs.get("prompt", f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}"),
         "stop_sequences":       kwargs.get("stop_sequences",[HUMAN_PREFIX]),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
@@ -62,7 +62,7 @@ def claud_complete(prompt, **kwargs):
         return responses
 
 
-def claud_message(messages, **kwargs):
+def claud_message(messages=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     responses = []

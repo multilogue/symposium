@@ -18,6 +18,8 @@ palm_embedding_model    = environ.get("PALM_DEFAULT_EMBEDDING_MODEL", "embedding
 
 
 def palm_message(messages,
+                 context,
+                 examples,
                  **kwargs):
 
     """A simple requests call to Palm message generation endpoint.

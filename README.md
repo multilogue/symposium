@@ -7,10 +7,14 @@ from symposium.connectors import anthropic_rest as ant
 ```
 #### Messages
 ```python
+messages = [
+  {"role": "user", "content": "Can we change human nature?"}
+    
+]
 kwargs = {
     "model":                "claude-3-sonnet-20240229",
     "system":               "answer concisely",
-    "messages":             [],
+    # "messages":             [],
     "max_tokens":           5,
     "stop_sequences":       ["stop", ant.HUMAN_PREFIX],
     "stream":               False,
@@ -22,10 +26,11 @@ response = ant.claud_message(messages,**kwargs)
 ```
 #### Completion
 ```python
+prompt = "Can we change human nature?"
 kwargs = {
     "model":                "claude-instant-1.2",
     "max_tokens":           5,
-    "prompt":               f"{ant.HUMAN_PREFIX}{prompt}{ant.MACHINE_PREFIX}",
+    # "prompt":               prompt,
     "stop_sequences":       [ant.HUMAN_PREFIX],
     "temperature":          0.5,
     "top_k":                250,
@@ -40,9 +45,12 @@ from symposium.connectors import openai_rest as oai
 ```
 #### Messages
 ```python
+messages = [
+  {"role": "user", "content": "Can we change human nature?"}
+]
 kwargs = {
     "model":                "gpt-3.5-turbo",
-    "messages":             [],
+    # "messages":             [],
     "max_tokens":           5,
     "n":                    1,
     "stop_sequences":       ["stop"],
@@ -60,9 +68,10 @@ responses = oai.gpt_message(messages, **kwargs)
 ```
 #### Completion
 ```python
+prompt = "Can we change human nature?"
 kwargs = {
     "model":                "gpt-3.5-turbo-instruct",
-    "prompt":               str,
+    # "prompt":               str,
     "suffix":               str,
     "max_tokens":           5,
     "n":                    1,
@@ -87,9 +96,29 @@ from symposium.connectors import gemini_rest as gem
 ```
 #### Messages
 ```python
+messages = [
+        {
+            "role": "user",
+            "parts": [
+                {"text": "Human nature can not be changed, because..."},
+                {"text": "...and that is why human nature can not be changed."}
+            ]
+        },{
+            "role": "model",
+            "parts": [
+                {"text": "Should I synthesize a text that will be placed between these two statements and follow the previous instruction while doing that?"}
+            ]
+        },{
+            "role": "user",
+            "parts": [
+                {"text": "Yes, please do."},
+                {"text": "Create a most concise text possible, preferably just one sentence}"}
+            ]
+        }
+]
 kwargs = {
     "model":                "gemini-1.0-pro",
-    "messages":             [],
+    # "messages":             [],
     "stop_sequences":       ["STOP","Title"],
     "temperature":          0.5,
     "max_tokens":           5,
@@ -120,16 +149,35 @@ responses = path.palm_complete(prompt, **kwargs)
 ```
 #### Messages
 ```python
+context = "This conversation will be happening between Albert and Niels"
+examples = [
+        {
+            "input": {"author": "Albert", "content": "We didn't talk about quantum mechanics lately..."},
+            "output": {"author": "Niels", "content": "Yes, indeed."}
+        }
+]
+messages = [
+        {
+            "author": "Albert",
+            "content": "Can we change human nature?"
+        }, {
+            "author": "Niels",
+            "content": "Not clear..."
+        }, {
+            "author": "Albert",
+            "content": "Seriously, can we?"
+        }
+]
 kwargs = {
     "model": "chat-bison-001",
-    "context": str,
-    "examples": [],
-    "messages": [],
+    # "context": str,
+    # "examples": [],
+    # "messages": [],
     "temperature": 0.5,
     # no 'max_tokens', beware the effects of that!
     "n": 1,
     "top_p": 0.5,
     "top_k": None
 }
-responses = path.palm_content(messages, **kwargs)
+responses = path.palm_content(context, examples, messages, **kwargs)
 ```
