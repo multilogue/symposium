@@ -101,6 +101,5 @@ def claud_message(messages, **kwargs):
 
 
 if __name__ == "__main__":
-    # completion = claud_complete( "I am Alex")
     # claude-3-opus-20240229, claude-3-sonnet-20240229
     print("ok")

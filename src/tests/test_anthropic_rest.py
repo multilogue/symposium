@@ -7,17 +7,12 @@ LICENSE file in the root directory of this source tree.
 """
 
 from os import environ
+import dotenv
+dotenv.load_dotenv()
 from symposium.connectors import anthropic_rest as ant
 
 
-class TestAnthropicRest:
-    def test_claud_message(self):
-        api_key = environ.get("ANTHROPIC_API_KEY")
-        headers = {
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json"
-        }
+def test_claud_message(self):
         messages = [
             {"role": "user", "content": "I am Alex"}
         ]
@@ -28,3 +23,7 @@ class TestAnthropicRest:
         }
         msgs = ant.claud_message(messages, **kwa)
         assert len(msgs) > 0
+
+
+def test_claud_complete():
+    assert False
