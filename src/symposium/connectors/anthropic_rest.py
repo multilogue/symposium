@@ -7,11 +7,9 @@ LICENSE file in the root directory of this source tree.
 """
 
 from os import environ
-from typing import List, Dict
 import requests
 
 api_key             = environ.get("ANTHROPIC_API_KEY")
-
 organization        = environ.get("ANTHROPIC_ORGANIZATION", "")
 api_base            = environ.get("ANTHROPIC_API_BASE", "https://api.anthropic.com/v1")
 api_type            = environ.get("ANTHROPIC_VERSION", "2023-06-01")
@@ -105,13 +103,4 @@ def claud_message(messages, **kwargs):
 if __name__ == "__main__":
     # completion = claud_complete( "I am Alex")
     # claude-3-opus-20240229, claude-3-sonnet-20240229
-    messages = [
-        {"role": "user", "content": "I am Alex"}
-    ]
-    kwa = {
-        # "model": "claude-3-opus-20240229",
-        "temperature": 0.5,
-        "max_tokens": 10,
-    }
-    msg = claud_message(messages, **kwa)
     print("ok")
