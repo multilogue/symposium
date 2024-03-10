@@ -52,7 +52,7 @@ def claud_message(client, messages, **kwargs):
     try:
         msg = client.messages.create(
             model=kwargs.get("model", "claude-3-sonnet-20240229"),
-            system=kwargs.get("system", None),
+            system=kwargs.get("system", "answer concisely"),
             messages=messages,
             max_tokens=kwargs.get("max_tokens", 1),
             stop_sequences=kwargs.get(
