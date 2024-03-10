@@ -15,7 +15,8 @@ api_base            = environ.get("ANTHROPIC_API_BASE", "https://api.anthropic.c
 api_type            = environ.get("ANTHROPIC_VERSION", "2023-06-01")
 default_model       = environ.get("ANTHROPIC_DEFAULT_MODEL", "claude-instant-1.2")
 completion_model    = environ.get("ANTHROPIC_COMPLETION_MODEL",'claude-instant-1.2')
-message_model       = environ.get("ANTHROPIC_MESSAGE_MODEL",'claude-2.0')
+message_model       = environ.get("ANTHROPIC_MESSAGE_MODEL",'claude-3-sonnet-20240229')
+# claude-3-opus-20240229, claude-3-sonnet-20240229
 
 HUMAN_PREFIX        = "\n\nHuman:"
 MACHINE_PREFIX      = "\n\nAssistant:"
@@ -101,5 +102,4 @@ def claud_message(messages=None, **kwargs):
 
 
 if __name__ == "__main__":
-    # claude-3-opus-20240229, claude-3-sonnet-20240229
-    print("ok")
+    print("you launched main.")

@@ -51,13 +51,13 @@ def claud_message(client, messages, **kwargs):
     msg = None
     try:
         msg = client.messages.create(
-            model=kwargs.get("model", "claude-2.0"),
+            model=kwargs.get("model", "claude-3-sonnet-20240229"),
             system=kwargs.get("system", None),
             messages=messages,
             max_tokens=kwargs.get("max_tokens", 1),
             stop_sequences=kwargs.get(
                 "stop_sequences",
-                [HUMAN_PREFIX, MACHINE_PREFIX]),
+                [HUMAN_PREFIX]),
             stream=kwargs.get("stream", False),
             temperature=kwargs.get("temperature", 0.5),
             top_k=kwargs.get("top_k", 250),

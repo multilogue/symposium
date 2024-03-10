@@ -11,7 +11,7 @@ import requests
 
 
 palm_key                = environ.get("GOOGLE_API_KEY","") # PALM_KEY", "")
-palm_api_base           = "https://generativelanguage.googleapis.com/v1beta3"
+palm_api_base           = environ.get("PALM_API_BASE","https://generativelanguage.googleapis.com/v1beta3")
 palm_completion_model   = environ.get("PALM_DEFAULT_TEXT_MODEL", "text-bison-001")
 palm_chat_model         = environ.get("PALM_DEFAULT_CHAT_MODEL", "chat-bison-001")
 palm_embedding_model    = environ.get("PALM_DEFAULT_EMBEDDING_MODEL", "embedding-gecko-001")

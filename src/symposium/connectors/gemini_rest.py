@@ -11,7 +11,7 @@ import requests
 
 
 gemini_key              = environ.get("GOOGLE_API_KEY","") # GEMINI_KEY", "")
-gemini_api_base         = "https://generativelanguage.googleapis.com/v1beta"
+gemini_api_base         = environ.get("GEMINI_API_BASE","https://generativelanguage.googleapis.com/v1beta")
 gemini_content_model    = environ.get("GEMINI_DEFAULT_CONTENT_MODEL", "gemini-1.0-pro")
 gemini_embedding_model  = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "embedding-001")
 
