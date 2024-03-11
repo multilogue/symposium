@@ -17,5 +17,15 @@ def anthropic_client():
 
 
 def test_claud_complete(anthropic_client):
-    completion = ant.claud_complete(client=anthropic_client, prompt="I am Alex")
+    prompt = "I am Alex"
+    completion = ant.claud_complete(client=anthropic_client,
+                                    prompt=prompt)
     assert completion is not None
+
+
+def test_claud_message(anthropic_client):
+    msgs = [{"role": "user", "content": "I am Alex"}]
+    kwargs = {"system": ""}
+    message = ant.claud_message(anthropic_client,
+                                messages=msgs, **kwargs)
+    assert message is not None

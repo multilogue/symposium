@@ -72,6 +72,4 @@ def claud_message(client, messages, **kwargs):
 
 
 if __name__ == "__main__":
-    client = get_claud_client()
-    completion = claud_complete(client, "I am Alex")
-    print(completion.completion)
+    print("you launched main.")
