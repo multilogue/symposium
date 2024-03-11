@@ -35,10 +35,12 @@ def claud_complete(client, prompt, **kwargs):
             prompt=f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}",
             stop_sequences=kwargs.get(
                 "stop_sequences",
-                [HUMAN_PREFIX, MACHINE_PREFIX]),
+                [HUMAN_PREFIX]),
             temperature=kwargs.get("temperature", 0.5),
             top_k=kwargs.get("top_k", 250),
-            top_p=kwargs.get("top_p", 0.5)
+            top_p=kwargs.get("top_p", 0.5),
+            stream=kwargs.get("stream", False),
+            metadata=kwargs.get("metadata", None)
         )
     except Exception as e:
         print(e)
@@ -61,7 +63,8 @@ def claud_message(client, messages, **kwargs):
             stream=kwargs.get("stream", False),
             temperature=kwargs.get("temperature", 0.5),
             top_k=kwargs.get("top_k", 250),
-            top_p=kwargs.get("top_p", 0.5)
+            top_p=kwargs.get("top_p", 0.5),
+            metadata=kwargs.get("metadata", None)
         )
     except Exception as e:
         print(e)
