@@ -24,7 +24,7 @@ def get_claud_client():
     return client
 
 
-def claud_complete(client, prompt, **kwargs):
+def claud_complete(client, prompt, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     completion = None
@@ -44,10 +44,13 @@ def claud_complete(client, prompt, **kwargs):
         )
     except Exception as e:
         print(e)
+    if recorder:
+        serialised_completion = completion.model_dump_json()
+        recorder.record(serialised_completion)
     return completion
 
 
-def claud_message(client, messages, **kwargs):
+def claud_message(client, messages, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     msg = None
@@ -68,6 +71,9 @@ def claud_message(client, messages, **kwargs):
         )
     except Exception as e:
         print(e)
+    if recorder:
+        serialised_msg = msg.model_dump_json()
+        recorder.record(serialised_msg)
     return msg
 
 
