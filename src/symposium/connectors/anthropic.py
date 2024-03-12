@@ -5,6 +5,12 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+from os import environ
+
+default_model       = environ.get("ANTHROPIC_DEFAULT_MODEL", "claude-instant-1.2")
+completion_model    = environ.get("ANTHROPIC_COMPLETION_MODEL",'claude-instant-1.2')
+message_model       = environ.get("ANTHROPIC_MESSAGE_MODEL",'claude-3-sonnet-20240229')
+# claude-3-opus-20240229, claude-3-sonnet-20240229
 
 HUMAN_PREFIX = "\n\nHuman:"
 MACHINE_PREFIX = "\n\nAssistant:"
@@ -27,9 +33,57 @@ def get_claud_client():
 def claud_complete(client, prompt, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
+    kwa = {
+        "model": kwargs.get("model", completion_model),
+        "max_tokens_to_sample": kwargs.get("max_tokens", 1),
+        "prompt": kwargs.get("prompt", f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}"),
+        "stop_sequences": kwargs.get("stop_sequences", [HUMAN_PREFIX]),
+        "temperature": kwargs.get("temperature", 0.5),
+        "top_k": kwargs.get("top_k", 250),
+        "top_p": kwargs.get("top_p", 0.5),
+        "metadata": kwargs.get("metadata", None)
+    }
     completion = None
     try:
-        completion = client.completions.create(
+        completion = client.completions.create(**kwa)
+    except Exception as e:
+        print(e)
+    if recorder:
+        rec = {"query": kwa, "response": completion.model_dump()}
+        recorder.record(rec)
+    return completion
+
+
+def claud_message(client, messages, recorder=None, **kwargs):
+    """ All parameters should be in kwargs, but they are optional
+    """
+    kwa = {
+        "model": kwargs.get("model", message_model),
+        "system": kwargs.get("system", "answer concisely"),
+        "messages": kwargs.get("messages", messages),
+        "max_tokens": kwargs.get("max_tokens", 1),
+        "stop_sequences": kwargs.get("stop_sequences", ['stop', HUMAN_PREFIX]),
+        "stream": kwargs.get("stream", False),
+        "temperature": kwargs.get("temperature", 0.5),
+        "top_k": kwargs.get("top_k", 250),
+        "top_p": kwargs.get("top_p", 0.5),
+        "metadata": kwargs.get("metadata", None)
+    }
+    msg = None
+    try:
+        msg = client.messages.create(**kwa)
+    except Exception as e:
+        print(e)
+    if recorder:
+        rec = {"query": kwa, "response": msg.model_dump()}
+        recorder.record(rec)
+    return msg
+
+
+if __name__ == "__main__":
+    print("you launched main.")
+
+'''
             model=kwargs.get("model", "claude-instant-1.2"),
             max_tokens_to_sample=kwargs.get("max_tokens_to_sample", 5),
             prompt=f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}",
@@ -41,21 +95,8 @@ def claud_complete(client, prompt, recorder=None, **kwargs):
             top_p=kwargs.get("top_p", 0.5),
             stream=kwargs.get("stream", False),
             metadata=kwargs.get("metadata", None)
-        )
-    except Exception as e:
-        print(e)
-    if recorder:
-        serialised_completion = completion.model_dump_json()
-        recorder.record(serialised_completion)
-    return completion
-
-
-def claud_message(client, messages, recorder=None, **kwargs):
-    """ All parameters should be in kwargs, but they are optional
-    """
-    msg = None
-    try:
-        msg = client.messages.create(
+'''
+'''
             model=kwargs.get("model", "claude-3-sonnet-20240229"),
             system=kwargs.get("system", "answer concisely"),
             messages=messages,
@@ -68,14 +109,5 @@ def claud_message(client, messages, recorder=None, **kwargs):
             top_k=kwargs.get("top_k", 250),
             top_p=kwargs.get("top_p", 0.5),
             metadata=kwargs.get("metadata", None)
-        )
-    except Exception as e:
-        print(e)
-    if recorder:
-        serialised_msg = msg.model_dump_json()
-        recorder.record(serialised_msg)
-    return msg
-
-
-if __name__ == "__main__":
-    print("you launched main.")
+        
+'''

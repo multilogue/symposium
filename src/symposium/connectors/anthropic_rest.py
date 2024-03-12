@@ -28,19 +28,20 @@ headers = {
 }
 
 
-def claud_complete(prompt=None, **kwargs):
+def claud_complete(prompt=None, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    responses = []
     json_data = {
         "model":                kwargs.get("model", completion_model),
-        "max_tokens_to_sample": kwargs.get("max_tokens", 5),
+        "max_tokens_to_sample": kwargs.get("max_tokens", 1),
         "prompt":               kwargs.get("prompt", f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}"),
         "stop_sequences":       kwargs.get("stop_sequences",[HUMAN_PREFIX]),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
-        "top_p":                kwargs.get("top_p", 0.5)
+        "top_p":                kwargs.get("top_p", 0.5),
+        "metadata":             kwargs.get("metadata", None)
     }
+    responses = []
     try:
         response = requests.post(
             f"{api_base}/complete",
@@ -56,6 +57,9 @@ def claud_complete(prompt=None, **kwargs):
             responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
+        if recorder:
+            rec = {"query": json_data, "response": response.json()}
+            recorder.record(rec)
         return responses
     except Exception as e:
         print("Unable to generate Completions response")
@@ -63,7 +67,7 @@ def claud_complete(prompt=None, **kwargs):
         return responses
 
 
-def claud_message(messages=None, **kwargs):
+def claud_message(messages=None, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     responses = []
@@ -71,12 +75,13 @@ def claud_message(messages=None, **kwargs):
         "model":                kwargs.get("model", message_model),
         "system":               kwargs.get("system", "answer concisely"),
         "messages":             kwargs.get("messages", messages),
-        "max_tokens":           kwargs.get("max_tokens", 5),
+        "max_tokens":           kwargs.get("max_tokens", 1),
         "stop_sequences":       kwargs.get("stop_sequences",['stop', HUMAN_PREFIX]),
         "stream":               kwargs.get("stream", False),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
-        "top_p":                kwargs.get("top_p", 0.5)
+        "top_p":                kwargs.get("top_p", 0.5),
+        "metadata":             kwargs.get("metadata", None)
     }
     try:
         response = requests.post(
@@ -94,6 +99,9 @@ def claud_message(messages=None, **kwargs):
             responses.append(item)
         else:
             print(f"Request status code: {response.status_code}")
+        if recorder:
+            rec = {"query": json_data, "response": response.json()}
+            recorder.record(rec)
         return responses
     except Exception as e:
         print("Unable to generate Message response")
