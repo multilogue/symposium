@@ -17,47 +17,44 @@ api_base            = environ.get("OPENAI_API_BASE", "https://api.openai.com/v1"
 api_type            = environ.get("OPENAI_API_TYPE", "open_ai")
 default_model       = environ.get("OPENAI_DEFAULT_MODEL", "gpt-3.5-turbo")
 completion_model    = environ.get("OPENAI_COMPLETION_MODEL",'gpt-3.5-turbo-instruct')
-embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-ada-002')  # text-similarity-davinci-001
+embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-3-small')  # text-similarity-davinci-001
 
 
 def get_openai_client():
-    client = None
     try:
         import openai
-        client = openai.OpenAI(
-            # defaults to os.environ.get("OPENAI_API_KEY")
-            # api_key="api_key",
-        )
+        client = openai.OpenAI()
     except ImportError:
-        print("openai package is not installed       pip install symposium[openai]")
-
+        print("openai package is not installed       ```pip install symposium[openai]")
+        return None
     return client
 
 
 def openai_complete(client, prompt, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    completion = None
+    kwa = {
+        "model":            kwargs.get("model", completion_model),
+        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
+        "prompt":           kwargs.get("prompt", prompt),
+        "suffix":           kwargs.get("suffix", None),
+        "stop":             kwargs.get("stop_sequences", ["stop"]),
+        "n":                kwargs.get("n", 1),
+        "best_of":          kwargs.get("best_of", 1),
+        "seed":             kwargs.get("seed", None),
+        "frequency_penalty":kwargs.get("frequency_penalty", None),
+        "presence_penalty": kwargs.get("presence_penalty", None),
+        "logit_bias":       kwargs.get("logit_bias", None),
+        "logprobs":         kwargs.get("logprobs", None),
+        "temperature":      kwargs.get("temperature", 0.5),
+        "top_p":            kwargs.get("top_p", 0.5),
+        "user":             kwargs.get("user", None)
+    }
     try:
-        completion = client.completions.create(
-            model           =kwargs.get("model", completion_model),
-            max_tokens      =kwargs.get("max_tokens_to_sample", 5),
-            prompt          =kwargs.get("prompt", prompt),
-            suffix          =kwargs.get("suffix", None),
-            stop            =kwargs.get("stop_sequences",["stop"]),
-            n               =kwargs.get("n", 1),
-            best_of         =kwargs.get("best_of", 1),
-            seed            =kwargs.get("seed", None),
-            frequency_penalty=kwargs.get("frequency_penalty", None),
-            presence_penalty=kwargs.get("presence_penalty", None),
-            logit_bias      =kwargs.get("logit_bias", None),
-            logprobs        =kwargs.get("logprobs", None),
-            temperature     =kwargs.get("temperature", 0.5),
-            top_p           =kwargs.get("top_p", 0.5),
-            user            =kwargs.get("user", None)
-        )
+        completion = client.completions.create(**kwa)
     except Exception as e:
         print(e)
+        return None
     return completion
 
 
@@ -93,3 +90,21 @@ if __name__ == "__main__":
     client = get_openai_client()
     completion = openai_complete(client, "I am Alex")
     print("ok")
+
+'''
+            model           =kwargs.get("model", completion_model),
+            max_tokens      =kwargs.get("max_tokens_to_sample", 5),
+            prompt          =kwargs.get("prompt", prompt),
+            suffix          =kwargs.get("suffix", None),
+            stop            =kwargs.get("stop_sequences",["stop"]),
+            n               =kwargs.get("n", 1),
+            best_of         =kwargs.get("best_of", 1),
+            seed            =kwargs.get("seed", None),
+            frequency_penalty=kwargs.get("frequency_penalty", None),
+            presence_penalty=kwargs.get("presence_penalty", None),
+            logit_bias      =kwargs.get("logit_bias", None),
+            logprobs        =kwargs.get("logprobs", None),
+            temperature     =kwargs.get("temperature", 0.5),
+            top_p           =kwargs.get("top_p", 0.5),
+            user            =kwargs.get("user", None)
+'''
