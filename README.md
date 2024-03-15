@@ -1,5 +1,5 @@
 # Symposium
-Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' packagee is an attempt to do that. It is a work in progress and will change without notice.
+Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' packagee is an attempt to do that. It is a work in progress and will change without notice. If you need a recording capabilities, install the `grammateus` package and pass an instance of Grammateus/recorder in your calls to connectors.
 ## Anthropic
 Import:
 ```python

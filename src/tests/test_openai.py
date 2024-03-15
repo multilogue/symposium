@@ -7,7 +7,7 @@ LICENSE file in the root directory of this source tree.
 """
 import dotenv
 dotenv.load_dotenv()
-import symposium.connectors.openai as openai
+import symposium.connectors.openai_native as openai
 import pytest
 
 

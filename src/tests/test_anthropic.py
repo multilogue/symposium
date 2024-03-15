@@ -7,7 +7,7 @@ LICENSE file in the root directory of this source tree.
 """
 import dotenv
 dotenv.load_dotenv()
-import symposium.connectors.anthropic as ant
+import symposium.connectors.anthropic_native as ant
 import pytest
 
 

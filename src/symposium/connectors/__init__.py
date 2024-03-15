@@ -5,14 +5,14 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from .anthropic import (HUMAN_PREFIX,
-                        MACHINE_PREFIX,
-                        get_claud_client,
-                        claud_complete,
-                        claud_message)
-from .openai import (get_openai_client,
-                     openai_complete,
-                     openai_message)
+from .anthropic_native import (HUMAN_PREFIX,
+                               MACHINE_PREFIX,
+                               get_claud_client,
+                               claud_complete,
+                               claud_message)
+from .openai_native import (get_openai_client,
+                            openai_complete,
+                            openai_message)
 
 __all__ = [
     "HUMAN_PREFIX",

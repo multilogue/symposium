@@ -22,15 +22,15 @@ embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-3-sma
 
 def get_openai_client():
     try:
-        import openai
-        client = openai.OpenAI()
+        from openai import OpenAI
+        client = OpenAI()
     except ImportError:
         print("openai package is not installed       ```pip install symposium[openai]")
         return None
     return client
 
 
-def openai_complete(client, prompt, **kwargs):
+def openai_complete(client, prompt, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     kwa = {
@@ -58,37 +58,47 @@ def openai_complete(client, prompt, **kwargs):
     return completion
 
 
-def openai_message(client, messages, **kwargs):
+def openai_message(client, messages, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    msg = None
+    kwa = {
+        "model":            kwargs.get("model", default_model),
+        "messages":         kwargs.get("messages", messages),
+        "max_tokens":       kwargs.get("max_tokens_to_sample", 1),
+        "stop":             kwargs.get("stop_sequences", ["stop"]),
+        "response_format":  kwargs.get("response_format", None),
+        "tools":            kwargs.get("tools", None),
+        "tool_choice":      kwargs.get("tool_choice", None),
+        "seed":             kwargs.get("seed", None),
+        "frequency_penalty":kwargs.get("frequency_penalty", None),
+        "presence_penalty": kwargs.get("presence_penalty", None),
+        "logit_bias":       kwargs.get("logit_bias", None),
+        "logprobs":         kwargs.get("logprobs", None),
+        "top_logprobs":     kwargs.get("top_logprobs", None),
+        "temperature":      kwargs.get("temperature", 0.5),
+        "top_p":            kwargs.get("top_p", 0.5),
+        "user":             kwargs.get("user", None)
+    }
     try:
-        msg = client.chat.completions.create(
-            model           =kwargs.get("model", default_model),
-            messages        =messages,
-            max_tokens      =kwargs.get("max_tokens_to_sample", 5),
-            stop            =kwargs.get("stop_sequences", ["stop"]),
-            response_format =kwargs.get("response_format", None),
-            tools           =kwargs.get("tools", None),
-            tool_choice     =kwargs.get("tool_choice", None),
-            seed            =kwargs.get("seed", None),
-            frequency_penalty=kwargs.get("frequency_penalty", None),
-            presence_penalty=kwargs.get("presence_penalty", None),
-            logit_bias      =kwargs.get("logit_bias", None),
-            logprobs        =kwargs.get("logprobs", None),
-            top_logprobs    =kwargs.get("top_logprobs", None),
-            temperature     =kwargs.get("temperature", 0.5),
-            top_p           =kwargs.get("top_p", 0.5),
-            user            =kwargs.get("user", None)
-        )
+        msg = client.chat.completions.create(**kwa)
+        msg_dump = msg.model_dump()
+        if recorder:
+            log_message = {"query": kwa, "response": {"message": msg_dump}}
+            recorder.log_event(log_message)
     except Exception as e:
         print(e)
+        return None
+    if recorder:
+        rec = {'messages': kwa['messages'], 'response': msg_dump['choices']}
+        recorder.record(rec)
     return msg
 
 
 if __name__ == "__main__":
+    from grammateus.entities import Grammateus
+    recorder = Grammateus(origin='openai', location='convers.log')
     client = get_openai_client()
-    completion = openai_complete(client, "I am Alex")
+    completion = openai_message(client, messages=[{"role": "user", "content": "Hello"}], recorder=recorder)
     print("ok")
 
 '''
@@ -104,6 +114,24 @@ if __name__ == "__main__":
             presence_penalty=kwargs.get("presence_penalty", None),
             logit_bias      =kwargs.get("logit_bias", None),
             logprobs        =kwargs.get("logprobs", None),
+            temperature     =kwargs.get("temperature", 0.5),
+            top_p           =kwargs.get("top_p", 0.5),
+            user            =kwargs.get("user", None)
+'''
+'''
+            model           =kwargs.get("model", default_model),
+            messages        =messages,
+            max_tokens      =kwargs.get("max_tokens_to_sample", 5),
+            stop            =kwargs.get("stop_sequences", ["stop"]),
+            response_format =kwargs.get("response_format", None),
+            tools           =kwargs.get("tools", None),
+            tool_choice     =kwargs.get("tool_choice", None),
+            seed            =kwargs.get("seed", None),
+            frequency_penalty=kwargs.get("frequency_penalty", None),
+            presence_penalty=kwargs.get("presence_penalty", None),
+            logit_bias      =kwargs.get("logit_bias", None),
+            logprobs        =kwargs.get("logprobs", None),
+            top_logprobs    =kwargs.get("top_logprobs", None),
             temperature     =kwargs.get("temperature", 0.5),
             top_p           =kwargs.get("top_p", 0.5),
             user            =kwargs.get("user", None)
