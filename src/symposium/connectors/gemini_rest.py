@@ -64,7 +64,12 @@ def gemini_message(messages: List,
             print(f"Request status code: {response.status_code}")
             return None
         if recorder:
-            rec = {'messages': json_data['contents'], 'response': msg_dump['candidates']}
+            solo_candidate = msg_dump['candidates'][0]['content']
+            text = ''
+            for part in solo_candidate['parts']:
+                text =+ part['text'] + ' '
+            resp_msg = {'role': solo_candidate['role'],'content': text}
+            rec = {'messages': json_data['contents'], 'response': resp_msg}
             recorder.record(rec)
             return msg_dump
     except Exception as e:
