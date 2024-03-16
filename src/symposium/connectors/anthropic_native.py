@@ -44,14 +44,18 @@ def claud_complete(client, prompt, recorder=None, **kwargs):
     }
     try:
         completion = client.completions.create(**kwa)
+        completion_dump = completion.model_dump()
         if recorder:
-            log_message = {"query": kwa, "response": {"completion": completion.model_dump()}}
+            log_message = {
+                "query": kwa,
+                "response": {"completion": completion_dump}
+            }
             recorder.log_event(log_message)
     except Exception as e:
         print(e)
         return None
     if recorder:
-        rec = {} #  {"query": kwa, "response": completion.model_dump()}
+        rec = {"prompt": kwa["prompt"], "completion": completion_dump}
         recorder.record(rec)
     return completion
 

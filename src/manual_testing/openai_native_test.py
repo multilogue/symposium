@@ -12,15 +12,15 @@ from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='openai', location='convers.log')
 oai = get_openai_client()
-messages = [
-    {'role': 'user','content': 'Hello'}
-]
-message = openai_message(
-    client=oai,
-    messages=messages,
-    recorder=grammateus
-)
-response=openai_message.content[0].text
+# messages = [
+#     {'role': 'user','content': 'Hello'}
+# ]
+# message = openai_message(
+#     client=oai,
+#     messages=messages,
+#     recorder=grammateus
+# )
+# response=message
 
 prompt = 'Hello'
 completion = openai_complete(
@@ -28,6 +28,7 @@ completion = openai_complete(
     prompt,
     recorder=grammateus
 )
+response = completion.choices
 
 
 if __name__ == "__main__":

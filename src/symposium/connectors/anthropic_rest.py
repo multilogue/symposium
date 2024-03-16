@@ -48,28 +48,26 @@ def claud_complete(prompt=None, recorder=None, **kwargs):
             json=json_data,
         )
         if response.status_code == requests.codes.ok:
-            obj = response.json()
-            item = {"index": 0,
-                    "author": "model",
-                    "content": obj['completion'],
-                    "stop_reason": obj['stop_reason']}
-            responses.append(item)
+            completion_dump = response.json()
+            if recorder:
+                log_message = {"query": json_data, "response": {"message": completion_dump}}
+                recorder.log_event(log_message)
         else:
             print(f"Request status code: {response.status_code}")
+            completion_dump = None
         if recorder:
-            rec = {"query": json_data, "response": response.json()}
+            rec = {"prompt": json_data["prompt"], "completion": completion_dump['completion']}
             recorder.record(rec)
-        return responses
+        return completion_dump
     except Exception as e:
         print("Unable to generate Completions response")
         print(f"Exception: {e}")
-        return responses
+        return None
 
 
 def claud_message(messages=None, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    responses = []
     json_data = {
         "model":                kwargs.get("model", message_model),
         "system":               kwargs.get("system", "answer concisely"),
@@ -89,23 +87,22 @@ def claud_message(messages=None, recorder=None, **kwargs):
             json=json_data,
         )
         if response.status_code == requests.codes.ok:
-            obj = response.json()
-            item = {"index": 0,
-                    "author": "model",
-                    "content": obj['content'][0]['text'],
-                    "stop_reason": obj['stop_reason']
-                    }
-            responses.append(item)
+            msg_dump = response.json()
+            if recorder:
+                log_message = {"query": json_data, "response": {"message": msg_dump}}
+                recorder.log_event(log_message)
         else:
             print(f"Request status code: {response.status_code}")
+            return None
         if recorder:
-            rec = {"query": json_data, "response": response.json()}
+            rec = {"messages": json_data['messages'], "response": msg_dump['content']}
             recorder.record(rec)
-        return responses
+        return msg_dump
+
     except Exception as e:
         print("Unable to generate Message response")
         print(f"Exception: {e}")
-        return responses
+        return None
 
 
 if __name__ == "__main__":

@@ -44,17 +44,27 @@ def openai_complete(client, prompt, recorder=None, **kwargs):
         "seed":             kwargs.get("seed", None),
         "frequency_penalty":kwargs.get("frequency_penalty", None),
         "presence_penalty": kwargs.get("presence_penalty", None),
-        "logit_bias":       kwargs.get("logit_bias", None),
+        "logit_bias":       kwargs.get("logit_bias", {}),
         "logprobs":         kwargs.get("logprobs", None),
         "temperature":      kwargs.get("temperature", 0.5),
         "top_p":            kwargs.get("top_p", 0.5),
-        "user":             kwargs.get("user", None)
+        # "user":             kwargs.get("user", None)
     }
     try:
         completion = client.completions.create(**kwa)
+        completion_dump = completion.model_dump()
+        if recorder:
+            log_message = {
+                "query": kwa,
+                "response": {"completion": completion_dump}
+            }
+            recorder.log_event(log_message)
     except Exception as e:
         print(e)
         return None
+    if recorder:
+        rec = {"prompt": kwa["prompt"], "completion": completion_dump['choices']}
+        recorder.record(rec)
     return completion
 
 
