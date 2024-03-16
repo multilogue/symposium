@@ -17,3 +17,12 @@ def prepared_ant_messages(input):
         ]
     """
     return input
+
+def formatted_ant_output(output):
+    """
+    :param output a dictionary returned from gemini_rest
+    :return: formatted_output
+    """
+    formatted_output = {'role': output['role'],
+            'content': output['content'][0]['text']}
+    return formatted_output

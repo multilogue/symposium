@@ -12,12 +12,7 @@ from grammateus.entities import Grammateus
 grammateus = Grammateus(origin='gemini', location='convers.log')
 
 messages = [
-        {
-            "role":"user",
-            "parts":[
-                {"text": "Hello"}
-            ]
-        }
+        {"role":"user", "content":"Hello"}
 ]
 message = gemini_message(
     messages=messages,

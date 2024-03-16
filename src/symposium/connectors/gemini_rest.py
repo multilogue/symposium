@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 from os import environ
 from typing import List, Dict
 import requests
+from ..adapters.gem_rest import prepared_gem_messages, formatted_gem_output
 
 
 gemini_key              = environ.get("GOOGLE_API_KEY","") # GEMINI_KEY", "")
@@ -35,7 +36,8 @@ def gemini_message(messages: List,
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
-    json_data = {"contents":            kwargs.get("messages", messages),
+    contents = prepared_gem_messages(kwargs.get("messages", messages))
+    json_data = {"contents":            contents,
                  "safetySettings":      garbage,
                  "generationConfig":{
                      "stopSequences":   kwargs.get("stop_sequences", ["STOP","Title"]),
@@ -63,15 +65,11 @@ def gemini_message(messages: List,
         else:
             print(f"Request status code: {response.status_code}")
             return None
+        formatted = formatted_gem_output(msg_dump)
         if recorder:
-            solo_candidate = msg_dump['candidates'][0]['content']
-            text = ''
-            for part in solo_candidate['parts']:
-                text =+ part['text'] + ' '
-            resp_msg = {'role': solo_candidate['role'],'content': text}
-            rec = {'messages': json_data['contents'], 'response': resp_msg}
+            rec = {'messages': json_data['contents'],'response': formatted}
             recorder.record(rec)
-            return msg_dump
+            return formatted
     except Exception as e:
         print(f"Unable to generate continuations response, {e}")
         return None

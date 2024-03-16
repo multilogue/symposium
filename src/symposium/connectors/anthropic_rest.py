@@ -7,6 +7,7 @@ LICENSE file in the root directory of this source tree.
 """
 from os import environ
 import requests
+from ..adapters.ant_rest import prepared_ant_messages, formatted_ant_output
 
 api_key             = environ.get("ANTHROPIC_API_KEY")
 organization        = environ.get("ANTHROPIC_ORGANIZATION", "")
@@ -68,9 +69,12 @@ def claud_complete(prompt=None, recorder=None, **kwargs):
 def claud_message(messages=None, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
+    formatted_messages = prepared_ant_messages(
+        kwargs.get("system", "answer concisely")
+    )
     json_data = {
         "model":                kwargs.get("model", message_model),
-        "system":               kwargs.get("system", "answer concisely"),
+        "system":               formatted_messages,
         "messages":             kwargs.get("messages", messages),
         "max_tokens":           kwargs.get("max_tokens", 1),
         "stop_sequences":       kwargs.get("stop_sequences",['stop', HUMAN_PREFIX]),
@@ -94,10 +98,11 @@ def claud_message(messages=None, recorder=None, **kwargs):
         else:
             print(f"Request status code: {response.status_code}")
             return None
+        formatted = formatted_ant_output(msg_dump)
         if recorder:
-            rec = {"messages": json_data['messages'], "response": msg_dump['content']}
+            rec = {"messages": json_data['messages'], "response": formatted}
             recorder.record(rec)
-        return msg_dump
+        return formatted
 
     except Exception as e:
         print("Unable to generate Message response")

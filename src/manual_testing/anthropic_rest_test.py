@@ -12,14 +12,14 @@ from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='anthropic', location='convers.log')
 
-# messages = [
-#     {'role': 'user','content': 'Hello'}
-# ]
-# message = claud_message(
-#     messages=messages,
-#     recorder=grammateus
-# )
-# response=message['content']
+messages = [
+    {'role': 'user','content': 'Hello'}
+]
+message = claud_message(
+    messages=messages,
+    recorder=grammateus
+)
+response=message['content']
 
 prompt = 'Hello'
 completion = claud_complete(
