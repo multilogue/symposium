@@ -14,10 +14,17 @@ gemini_key              = environ.get("GOOGLE_API_KEY","") # GEMINI_KEY", "")
 gemini_api_base         = environ.get("GEMINI_API_BASE","https://generativelanguage.googleapis.com/v1beta")
 gemini_content_model    = environ.get("GEMINI_DEFAULT_CONTENT_MODEL", "gemini-1.0-pro")
 gemini_embedding_model  = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "embedding-001")
+garbage = [
+    {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_HATE_SPEECH","threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_HARASSMENT","threshold": "BLOCK_NONE"},
+    {"category": "HARM_CATEGORY_DANGEROUS_CONTENT","threshold": "BLOCK_NONE"}
+]
 
 
-def gemini_content(messages: List,
-                   **kwargs) -> List:
+def gemini_message(messages: List,
+                   recorder=None,
+                   **kwargs):
 
     """A completions endpoint call through requests.
         kwargs:
@@ -28,28 +35,20 @@ def gemini_content(messages: List,
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
-    garbage = [{"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold": "BLOCK_NONE"},
-               {"category": "HARM_CATEGORY_HATE_SPEECH","threshold": "BLOCK_NONE"},
-               {"category": "HARM_CATEGORY_HARASSMENT","threshold": "BLOCK_NONE"},
-               {"category": "HARM_CATEGORY_DANGEROUS_CONTENT","threshold": "BLOCK_NONE"}
-    ]
-
-    responses = []
-    json_data = {"contents": kwargs.get("messages", messages),
-                 "safetySettings":  garbage,
+    json_data = {"contents":            kwargs.get("messages", messages),
+                 "safetySettings":      garbage,
                  "generationConfig":{
-                     "stopSequences":  kwargs.get("stop_sequences", ["STOP","Title"]),
+                     "stopSequences":   kwargs.get("stop_sequences", ["STOP","Title"]),
                      "temperature":     kwargs.get("temperature", 0.5),
-                     "maxOutputTokens": kwargs.get("max_tokens", 5),
+                     "maxOutputTokens": kwargs.get("max_tokens", 100),
                      "candidateCount":  kwargs.get("n", 1),
                      "topP":            kwargs.get("top_p", 0.9),
                      "topK":            kwargs.get("top_k", None)
                  }
             }
     try:
-        url = f"{gemini_api_base}/models/{kwargs.get('model', gemini_content_model)}:generateContent"
         response = requests.post(
-            url=url,
+            url=f"{gemini_api_base}/models/{kwargs.get('model', gemini_content_model)}:generateContent",
             params=f"key={gemini_key}",
             json=json_data,
         )
@@ -57,21 +56,25 @@ def gemini_content(messages: List,
             if response.json().get('filters', None):
                 raise Exception('Results filtered')
             else:
-                for count, candidate in enumerate(response.json()['candidates']):
-                    item = {"index": count,
-                            "text": candidate['content']['parts'][0]['text'],
-                            "finish_reason": candidate['finishReason'].lower()}
-                    responses.append(item)
+                msg_dump = response.json()
+                if recorder:
+                    log_message = {"query": json_data, "response": msg_dump}
+                    recorder.log_event(log_message)
         else:
             print(f"Request status code: {response.status_code}")
-        return responses
+            return None
+        if recorder:
+            rec = {'messages': json_data['contents'], 'response': msg_dump['candidates']}
+            recorder.record(rec)
+            return msg_dump
     except Exception as e:
         print(f"Unable to generate continuations response, {e}")
-        return responses
+        return None
 
 
 def gemini_answer(contents: List,
-                  **kwargs) -> List:
+                  recorder=None,
+                  **kwargs):
 
     """A completions endpoint call through requests.
         kwargs:
@@ -82,13 +85,6 @@ def gemini_answer(contents: List,
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
-    garbage = [{"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold": "BLOCK_NONE"},
-               {"category": "HARM_CATEGORY_HATE_SPEECH","threshold": "BLOCK_NONE"},
-               {"category": "HARM_CATEGORY_HARASSMENT","threshold": "BLOCK_NONE"},
-               {"category": "HARM_CATEGORY_DANGEROUS_CONTENT","threshold": "BLOCK_NONE"}
-    ]
-
-    responses = []
     # answerStyle =
     # ANSWER_STYLE_UNSPECIFIED = 0,
     # ABSTRACTIVE	Succint but abstract style
@@ -101,9 +97,9 @@ def gemini_answer(contents: List,
                  "temperature":     kwargs.get("temperature", 0.5)
             }
     try:
-        url = f"{gemini_api_base}/models/{kwargs.get('model', gemini_content_model)}:generateAnswer"
+
         response = requests.post(
-            url=url,
+            url=f"{gemini_api_base}/models/{kwargs.get('model', gemini_content_model)}:generateAnswer",
             params=f"key={gemini_key}",
             json=json_data,
         )
@@ -111,17 +107,19 @@ def gemini_answer(contents: List,
             if response.json().get('filters', None):
                 raise Exception('Results filtered')
             else:
-                for count, candidate in enumerate(response.json()['candidates']):
-                    item = {"index": count,
-                            "text": candidate['content']['parts'][0]['text'],
-                            "finish_reason": candidate['finishReason'].lower()}
-                    responses.append(item)
+                answer_dump = response.json()
+                if recorder:
+                    log_message = {"query": json_data, "response": answer_dump}
+                    recorder.log_event(log_message)
         else:
             print(f"Request status code: {response.status_code}")
-        return responses
+            return None
+        if recorder:
+            rec = {'messages': json_data['contents'], 'response': answer_dump['candidates']}
+            recorder.record(rec)
     except Exception as e:
         print(f"Unable to generate continuations response, {e}")
-        return responses
+        return None
 
 
 def gemini_embeddings(input_list: List[str],
@@ -187,7 +185,7 @@ if __name__ == '__main__':
         "top_k": 50
     }
 
-    a = gemini_content(messages=contents, **kwa)
+    a = gemini_message(messages=contents, **kwa)
     # contents = [
     #     {
     #         "role": "user",

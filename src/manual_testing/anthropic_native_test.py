@@ -20,7 +20,7 @@ anthropic_message = claud_message(
     messages=messages,
     recorder=grammateus
 )
-response=anthropic_message.content[0].text
+response=anthropic_message['content']
 
 prompt = 'Hello'
 anthropic_complete = claud_complete(
@@ -28,7 +28,7 @@ anthropic_complete = claud_complete(
     prompt,
     recorder=grammateus
 )
-completion = anthropic_complete.completion
+completion = anthropic_complete['completion']
 
 if __name__ == '__main__':
     print('ok')

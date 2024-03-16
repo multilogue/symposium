@@ -30,7 +30,7 @@ def get_openai_client():
     return client
 
 
-def openai_complete(client, prompt, recorder=None, **kwargs):
+def openai_complete(client, prompt, recorder=None, json=True, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     kwa = {
@@ -54,10 +54,7 @@ def openai_complete(client, prompt, recorder=None, **kwargs):
         completion = client.completions.create(**kwa)
         completion_dump = completion.model_dump()
         if recorder:
-            log_message = {
-                "query": kwa,
-                "response": {"completion": completion_dump}
-            }
+            log_message = {"query": kwa, "response": {"completion": completion_dump}}
             recorder.log_event(log_message)
     except Exception as e:
         print(e)
@@ -65,10 +62,13 @@ def openai_complete(client, prompt, recorder=None, **kwargs):
     if recorder:
         rec = {"prompt": kwa["prompt"], "completion": completion_dump['choices']}
         recorder.record(rec)
-    return completion
+    if json:
+        return completion_dump
+    else:
+        return completion
 
 
-def openai_message(client, messages, recorder=None, **kwargs):
+def openai_message(client, messages, recorder=None, json=True, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     kwa = {
@@ -101,7 +101,10 @@ def openai_message(client, messages, recorder=None, **kwargs):
     if recorder:
         rec = {'messages': kwa['messages'], 'response': msg_dump['choices']}
         recorder.record(rec)
-    return msg
+    if json:
+        return msg_dump
+    else:
+        return msg
 
 
 if __name__ == "__main__":

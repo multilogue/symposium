@@ -29,7 +29,7 @@ def get_claud_client():
     return client
 
 
-def claud_complete(client, prompt, recorder=None, **kwargs):
+def claud_complete(client, prompt, recorder=None, json=True, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     kwa = {
@@ -57,10 +57,13 @@ def claud_complete(client, prompt, recorder=None, **kwargs):
     if recorder:
         rec = {"prompt": kwa["prompt"], "completion": completion_dump}
         recorder.record(rec)
-    return completion
+    if json:
+        return completion_dump
+    else:
+        return completion
 
 
-def claud_message(client, messages, recorder=None, **kwargs):
+def claud_message(client, messages, recorder=None, json=True, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     kwa = {
@@ -87,7 +90,8 @@ def claud_message(client, messages, recorder=None, **kwargs):
     if recorder:
         rec = {'messages': kwa['messages'], 'response': msg_dump['content']}
         recorder.record(rec)
-    return msg
+
+
 
 
 if __name__ == "__main__":
