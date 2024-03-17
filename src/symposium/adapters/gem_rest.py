@@ -11,20 +11,27 @@ def prepared_gem_messages(input):
     """
     :input_format
         messages = [
-            {"role":"user","content": "Hello"}
+            {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
+            {"role": "machine", "name": "gemini",   "content": "Yes."}
+            {"role": "human",   "name": "alex",     "content": "Then let's do it."}
         ]
     :outputformat
         messages = [
-            {"role":"user", "parts":[{"text": "Hello!"}]}
+            {"role":"user", "parts":[{"text": "Can we discuss this?"}]},
+            {"role":"model", "parts":[{"text": "Yes."}]},
+            {"role":"user", "parts":[{"text": "Then let's do it."}]}
         ]
     """
-    output = []
+    prepared_output = []
     for message in input:
-        output.append(
-            {'role': message['role'],'parts': [{'text': message['content']}]}
-        )
-    return output
-
+        output_message = {}
+        if message['role'] == 'human':
+            output_message['role'] = 'user'
+        elif message['role'] == 'machine':
+            output_message['role'] = 'model'
+        output_message['parts'] = [{'text': message['content']}]
+        prepared_output.append(output_message)
+    return input, prepared_output
 
 
 def formatted_gem_output(output):
@@ -36,8 +43,11 @@ def formatted_gem_output(output):
     text = ''
     for part in solo_candidate['parts']:
         text += part['text'] + ' '
-    formatted_output = {
-        'role': solo_candidate['role'],
-        'content': text
-    }
+    formatted_output = {}
+    if solo_candidate['role'] == 'model':
+        formatted_output['role'] = 'machine'
+        formatted_output['name'] = 'gemini'
+        formatted_output['content'] = text
+    else:
+        print('The role is not model')
     return formatted_output

@@ -36,8 +36,9 @@ def gemini_message(messages: List,
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
-    contents = prepared_gem_messages(kwargs.get("messages", messages))
-    json_data = {"contents":            contents,
+    record, formatted_messages = prepared_gem_messages(kwargs.get("messages", messages))
+    json_data = {
+                 "contents":            formatted_messages,
                  "safetySettings":      garbage,
                  "generationConfig":{
                      "stopSequences":   kwargs.get("stop_sequences", ["STOP","Title"]),
@@ -67,7 +68,7 @@ def gemini_message(messages: List,
             return None
         formatted = formatted_gem_output(msg_dump)
         if recorder:
-            rec = {'messages': json_data['contents'],'response': formatted}
+            rec = {'messages': record,'response': formatted}
             recorder.record(rec)
             return formatted
     except Exception as e:

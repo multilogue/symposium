@@ -13,7 +13,7 @@ from grammateus.entities import Grammateus
 grammateus = Grammateus(origin='anthropic', location='convers.log')
 
 messages = [
-    {'role': 'user','content': 'Hello'}
+    {'role': 'human', 'name': 'alex', 'content': 'Hello'}
 ]
 message = claud_message(
     messages=messages,

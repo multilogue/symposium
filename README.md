@@ -1,5 +1,17 @@
 # Symposium
 Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' packagee is an attempt to do that. It is a work in progress and will change without notice. If you need a recording capabilities, install the `grammateus` package and pass an instance of Grammateus/recorder in your calls to connectors.
+## Unification
+One of the motivations for this package was the need in a unified interface for messaging language models, which is particularly useful if you want to experiment with interactions between them.
+
+The unified standard use by this package is:
+```python
+messages = [
+    {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
+    {"role": "machine", "name": "claude",   "content": "Yes."}
+    {"role": "human",   "name": "alex",     "content": "Then let's do it."}
+]
+```
+The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular models from  this format to a model-specific format and back from the format of its' response to it.
 ## Anthropic
 Import:
 ```python
@@ -9,7 +21,6 @@ from symposium.connectors import anthropic_rest as ant
 ```python
 messages = [
   {"role": "user", "content": "Can we change human nature?"}
-    
 ]
 kwargs = {
     "model":                "claude-3-sonnet-20240229",

@@ -69,13 +69,13 @@ def claud_complete(prompt=None, recorder=None, **kwargs):
 def claud_message(messages=None, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
-    formatted_messages = prepared_ant_messages(
-        kwargs.get("system", "answer concisely")
+    record, formatted_messages = prepared_ant_messages(
+        kwargs.get("messages", messages)
     )
     json_data = {
         "model":                kwargs.get("model", message_model),
-        "system":               formatted_messages,
-        "messages":             kwargs.get("messages", messages),
+        "system":               kwargs.get("system", "answer concisely"),
+        "messages":             formatted_messages,
         "max_tokens":           kwargs.get("max_tokens", 1),
         "stop_sequences":       kwargs.get("stop_sequences",['stop', HUMAN_PREFIX]),
         "stream":               kwargs.get("stream", False),
@@ -100,7 +100,7 @@ def claud_message(messages=None, recorder=None, **kwargs):
             return None
         formatted = formatted_ant_output(msg_dump)
         if recorder:
-            rec = {"messages": json_data['messages'], "response": formatted}
+            rec = {"messages": record, "response": formatted}
             recorder.record(rec)
         return formatted
 
