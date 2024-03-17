@@ -20,5 +20,5 @@ message = gemini_message(
     messages=messages,
     recorder=grammateus
 )
-response=message['candidates'][0]['content']['parts'][0]['text']
+response=message
 print('ok')

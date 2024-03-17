@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 from typing import List, Dict
 from os import environ
 import requests
+from ..adapters.oai_rest import prepared_oai_messages, format_oai_output
 
 
 api_key             = environ.get("OPENAI_API_KEY")
@@ -29,7 +30,8 @@ headers = {
 
 
 def gpt_message(messages,
-               **kwargs):
+                recorder,
+                **kwargs):
 
     """A simple requests call to ChatGPT chat completions endpoint.
         kwargs:
@@ -40,10 +42,12 @@ def gpt_message(messages,
             presence_penalty = -2.0 to 2.0
             max_tokens      = number of tokens
     """
-    responses = []
+    record, formatted_messages = prepared_oai_messages(
+        kwargs.get("messages", messages)
+    )
     json_data = {
         "model":            kwargs.get("model", default_model),
-        "messages":         kwargs.get("messages", messages),
+        "messages":         formatted_messages,
         "max_tokens":       kwargs.get("max_tokens", 5),
         "n":                kwargs.get("n", 1),
         "stop":             kwargs.get("stop_sequences", ["stop"]),
@@ -67,17 +71,25 @@ def gpt_message(messages,
             json=json_data,
         )
         if response.status_code == requests.codes.ok:
-            for choice in response.json()['choices']:
-                responses.append(choice)
+            msg_dump = response.json()
+            if recorder:
+                log_message = {"query": json_data, "response": {"message": msg_dump}}
+                recorder.log_event(log_message)
         else:
             print(f"Request status code: {response.status_code}")
-            print(response.json()['content'])
-        return responses
+            return None
+        formatted, other = format_oai_output(msg_dump)
+        if recorder:
+            rec = {"messages": record, "response": formatted}
+            if other:
+                rec["other"] = other
+            recorder.record(rec)
+        return formatted
 
     except Exception as e:
         print("Unable to generate ChatCompletion response")
         print(f"Exception: {e}")
-        return responses
+        return None
 
 
 def gpt_fill_in(text_before, text_after, **kwargs):

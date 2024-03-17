@@ -6,18 +6,28 @@ This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
 import os
-from symposium.connectors.openai_rest import gpt_complete, gpt_message
+from symposium.connectors.openai_rest import gpt_message
 from grammateus.entities import Grammateus
 
 
-response=gpt_message.content[0].text
-prompt = 'Hello'
-completion = gpt_complete(
-    oai,
-    prompt,
-    recorder=grammateus
+grammateus = Grammateus(origin='openai', location='conversation_test.log')
+
+
+messages = [
+            {"role": "world",   "name": "openai",   "content": "Be an Abstract Intellect."},
+            {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
+            {"role": "machine", "name": "chatgpt",  "content": "Yes."},
+            {"role": "human",   "name": "alex",     "content": "Then let's do it."}
+]
+kwargs = {
+    "max_tokens": 256,
+}
+message = gpt_message(
+    messages=messages,
+    recorder=grammateus,
+    **kwargs
 )
-print('ok')
+response=message
 
 
 if __name__ == "__main__":
