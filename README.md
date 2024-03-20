@@ -1,17 +1,37 @@
 # Symposium
 Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' packagee is an attempt to do that. It is a work in progress and will change without notice. If you need a recording capabilities, install the `grammateus` package and pass an instance of Grammateus/recorder in your calls to connectors.
 ## Unification
-One of the motivations for this package was the need in a unified interface for messaging language models, which is particularly useful if you want to experiment with interactions between them.
+One of the motivations for this package was the need in a unified format for messaging language models, which is particularly useful if you are going to experiment with interactions between them.
 
-The unified standard use by this package is:
+The unified standard used by this package is as follows.
+### 'System' messages
 ```python
 messages = [
-    {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
-    {"role": "machine", "name": "claude",   "content": "Yes."}
-    {"role": "human",   "name": "alex",     "content": "Then let's do it."}
+    {"role": "world",   "name": "openai",   "content": "Be an Abstract Intellect."}
 ]
 ```
-The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular models from  this format to a model-specific format and back from the format of its' response to it.
+Name field should be set to 'openai', 'anthropic', 'google_gemini' or 'google_palm'.
+For the 'anthropic' name, the last 
+'system' message will be used as the 'system' parameter in the request. For palm_messages v1beta3 format this message will be used in the 'context' parameter.
+### 'User' messages
+```python
+messages = [
+    {"role": "human",   "name": "alex",     "content": "Let's discuss human nature."}
+]
+```
+The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from  this format to a model-specific format and back from the format of its' response to the following output format.
+## Output format
+The unified standard used by this package is:
+```python
+message = {
+    "role": "machine",   "name": "claude",     "content": " ... ", 
+    "tags": [{}],   # optional, if in the response, then returned
+    "other": [{}]   # optional, for n > 1
+}
+```
+Name field will be set to 'chatgpt', 'claude', 'gemini' or 'palm'.<br>
+Tags are extracted from the text and put into a list. The placeholder for the tags is: (tag_name).<br>
+If there are more than one response, the other field will contain the list of the rest (transformed too).
 ## Anthropic
 Import:
 ```python

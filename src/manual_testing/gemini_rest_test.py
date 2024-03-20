@@ -26,33 +26,33 @@ response=message
 print('ok')
 
 """
-# contents = [
-    #     {
-    #         "parts": [
-    #             {"text": "Create a most concise text possible, preferrably just one sentence, answering the question: Can human nature be changed?"}
-    #         ]
-    #     }
-    # ]
-    contents = [
+contents = [
         {
-            "role": "user",
             "parts": [
-                {"text": "Human nature can not be changed, because..."},
-                {"text": "...and that is why human nature can not be changed."}
-            ]
-        },{
-            "role": "model",
-            "parts": [
-                {"text": "Should I synthesize a text that will be placed between these two statements and follow the previous instruction while doing that?"}
-            ]
-        },{
-            "role": "user",
-            "parts": [
-                {"text": "Yes, please do."},
-                {"text": "Create a most concise text possible, preferably just one sentence}"}
+                {"text": "Create a most concise text possible, preferrably just one sentence, answering the question: Can human nature be changed?"}
             ]
         }
     ]
+contents = [
+    {
+        "role": "user",
+        "parts": [
+            {"text": "Human nature can not be changed, because..."},
+            {"text": "...and that is why human nature can not be changed."}
+        ]
+    },{
+        "role": "model",
+        "parts": [
+            {"text": "Should I synthesize a text that will be placed between these two statements and follow the previous instruction while doing that?"}
+        ]
+    },{
+        "role": "user",
+        "parts": [
+            {"text": "Yes, please do."},
+            {"text": "Create a most concise text possible, preferably just one sentence}"}
+        ]
+    }
+]
     kwa = {
         "model": "gemini-1.5-pro",
         "temperature": 1.0,

@@ -47,7 +47,6 @@ def claud_complete(messages=None, recorder=None, **kwargs):
         "top_p":                kwargs.get("top_p", 0.5),
         "metadata":             kwargs.get("metadata", None)
     }
-    responses = []
     try:
         response = requests.post(
             f"{api_base}/complete",

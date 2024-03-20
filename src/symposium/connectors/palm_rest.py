@@ -8,6 +8,7 @@ LICENSE file in the root directory of this source tree.
 from os import environ
 from typing import List, Dict
 import requests
+from ..adapters.plm_rest import prepared_plm_prompt, format_plm_output
 
 
 palm_key                = environ.get("GOOGLE_API_KEY","") # PALM_KEY", "")
@@ -66,9 +67,7 @@ def palm_message(messages,
         return responses
 
 
-def palm_complete(prompt: str,
-                  **kwargs) -> List:
-
+def palm_complete(messages=None, recorder=None, **kwargs):
     """A completions endpoint call through requests.
         kwargs:
             temperature     = 0 to 1.0
@@ -78,6 +77,9 @@ def palm_complete(prompt: str,
             max_tokens      = number of tokens
             stop            = ["stop"]  array of up to 4 sequences
     """
+    record, formatted_prompt = prepared_plm_prompt(
+        kwargs.get("messages", messages)
+    )
     garbage = [{"category": "HARM_CATEGORY_UNSPECIFIED",    "threshold": "BLOCK_NONE"},  # 0-th category
                {"category": "HARM_CATEGORY_DEROGATORY",     "threshold": "BLOCK_NONE"},
                {"category": "HARM_CATEGORY_TOXICITY",       "threshold": "BLOCK_NONE"},
@@ -88,13 +90,14 @@ def palm_complete(prompt: str,
     ]
 
     responses = []
-    json_data = {"prompt": {"text": kwargs.get("prompt", prompt)},
+    json_data = {"prompt":          formatted_prompt,
                  "temperature":     kwargs.get("temperature", 0.5),
                  "candidateCount":  kwargs.get("n", 1),
                  "safetySettings":  garbage,
-                 "maxOutputTokens": kwargs.get("max_tokens", 10),
+                 "maxOutputTokens": kwargs.get("max_tokens", 256),
                  "topP":            kwargs.get("top_p", 0.5),
-                 "topK":            kwargs.get("top_k", None)}
+                 "topK":            kwargs.get("top_k", None)
+                }
     try:
         url = f"{palm_api_base}/models/{kwargs.get('model', palm_completion_model)}:generateText"
         response = requests.post(
@@ -106,17 +109,23 @@ def palm_complete(prompt: str,
             if response.json().get('filters', None):
                 raise Exception('Results filtered')
             else:
-                for count, candidate in enumerate(response.json()['candidates']):
-                    item = {"index": count,
-                            "text": candidate['output'],
-                            "finish_reason": 'stop'}
-                    responses.append(item)
+                response_dump = response.json()
+                if recorder:
+                    log_message = {"query": json_data, "response": response_dump}
+                    recorder.log_event(log_message)
         else:
             print(f"Request status code: {response.status_code}")
-        return responses
+            return None
+        formatted, other = format_plm_output(response_dump)
+        if other:
+            formatted['other'] = other
+        if recorder:
+            rec = {'messages': record, 'response': formatted}
+            recorder.record(rec)
+            return formatted
     except Exception as e:
         print(f"Unable to generate continuations response, {e}")
-        return responses
+        return None
 
 
 def palm_embeddings(input_list: List[str],
