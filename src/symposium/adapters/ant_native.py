@@ -5,68 +5,71 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from copy import deepcopy
-import xml.etree.ElementTree as ElementTree
-
-
-def extract_xml_tagged_content(text):
-    """
-    :input_format
-        <message>
-            This is some text with <tag_one>XML-tagged content</tag_one>.
-            Another <tag_two>XML-tagged</tag_two> portion is here.
-        </message>
-    :outputformat
-        This is some text with {{tag}} content. Another {{tag}} portion is here.
-        [ {'tag_one': 'XML-tagged content'}, {'tag_two': 'XML-tagged'} ]
-
-    BEWARE MULTI-LEVELED TAGS!!!
-    """
-    root = ElementTree.fromstring(text)
-    # Extract all the tags
-    txt = ' '.join(root.itertext()); tags = []
-    tag_iter = root.iter(); next(tag_iter)
-    for item in tag_iter:
-        tag = item.tag
-        text = item.text
-        txt = txt.replace(text, f"({tag})")
-        tags.append({tag: text})
-    return txt, tags
+# from copy import deepcopy
+# import re
+from ..util.xml_tags import extract_xml_tagged_content
 
 
 def prepared_ant_messages(input):
     """
     :input_format
         messages = [
-            {"role":"user","content": "Hello"}
+            {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
+            {"role": "machine", "name": "claude",   "content": "Yes."}
+            {"role": "human",   "name": "alex",     "content": "Then let's do it."}
         ]
     :outputformat
         messages = [
-            {"role":"user","content": "Hello"}
+            {"role": "user",        "content": "Can we discuss this?"}
+            {"role": "assistant",   "content": "Yes."}
+            {"role": "user",        "content": "Then let's do it."}
         ]
     """
-    return input
+    output_messages = []
+    for message in input:
+        output_message = {}
+        if message['role'] == 'human':
+            output_message['role'] = 'user'
+        elif message['role'] == 'machine':
+            output_message['role'] = 'assistant'
+        output_message['content'] = message['content']
+        output_messages.append(output_message)
+    return input, output_messages
 
 
-# Tagged content extraction
-
-
-
-
+def formatted_ant_output(output):
+    """
+    :input_format
+        messages = [
+            {"role": "assistant",   "content": "I will lay it out later"}
+        ]
+    :outputformat
+        messages = [
+            {"role": "machine", "name": "claude",   "content": "I will lay it out later"}
+        ]
+    """
+    formatted_output = {}
+    if output['role'] == 'assistant':
+        formatted_output['role'] = 'machine'
+        formatted_output['name'] = 'claude'
+        txt, tags = extract_xml_tagged_content(output['content'][0]['text'], placeholders=True)
+        formatted_output['content'] = txt
+        if len(tags) > 0:
+            formatted_output['tags'] = tags
+    else:
+        print('The role is not assistant')
+    return formatted_output
 
 
 def main():
     # Example plain text with XML tags
-    string = """
-    This is some text with <tag_one>XML-tagged content</tag_one>. Another <tag_two>XML-tagged</tag_two> portion is here.
+    string_with_tags = """
+    This is some text with <tag_one>XML-tagged content</tag_one>. And more and more second levelled tags. Another <tag_two>XML-tagged</tag_two> portion is here.
     """
-    message = f'<message>{string}</message>'
     # Extract tagged content and replace with placeholders
-    modified_text, tags = extract_xml_tagged_content(message)
-
-    # Print modified text
-    print("Modified Text:")
-    print(modified_text)
+    modified_text, tags = extract_xml_tagged_content(string_with_tags, placeholders=True)
+    print("Modified Text:", modified_text)
+    print(tags)
 
 
 

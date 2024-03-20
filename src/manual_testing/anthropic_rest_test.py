@@ -12,21 +12,35 @@ from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='anthropic', location='convers.log')
 
-messages = [
-    {'role': 'human', 'name': 'alex', 'content': 'Hello'}
-]
-message = claud_message(
-    messages=messages,
-    recorder=grammateus
-)
-response=message['content']
+# messages = [
+#     {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'},
+# ]
+# kwargs = {
+#     "system": "be an Abstract Intellect.",
+#     "max_tokens": 256
+# }
+# message = claud_message(
+#     messages=messages,
+#     recorder=grammateus,
+#     **kwargs
+# )
+# if message is not None:
+#     response=message['content']
+kwargs = {
+    "max_tokens": 256
+}
 
-prompt = 'Hello'
-completion = claud_complete(
-    prompt,
-    recorder=grammateus
+messages = [
+    {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'}
+]
+
+message = claud_complete(
+    messages,
+    grammateus,
+    **kwargs
 )
-response=completion['completion']
+if message is not None:
+    response = message
 
 print('ok')
 

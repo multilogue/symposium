@@ -12,16 +12,14 @@ from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='openai', location='conversation_test.log')
 
-
 messages = [
-            {"role": "world",   "name": "openai",   "content": "Be an Abstract Intellect."},
-            {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
-            {"role": "machine", "name": "chatgpt",  "content": "Yes."},
-            {"role": "human",   "name": "alex",     "content": "Then let's do it."}
+            {"role": "human",   "name": "alex",     "content": "Put your name between the <name></name> tags."}
 ]
 kwargs = {
     "max_tokens": 256,
+    "n": 1
 }
+
 message = gpt_message(
     messages=messages,
     recorder=grammateus,

@@ -5,6 +5,7 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+from ..util.xml_tags import extract_xml_tagged_content
 
 
 def prepared_gem_messages(input):
@@ -47,7 +48,13 @@ def formatted_gem_output(output):
     if solo_candidate['role'] == 'model':
         formatted_output['role'] = 'machine'
         formatted_output['name'] = 'gemini'
-        formatted_output['content'] = text
+        txt, tags = extract_xml_tagged_content(
+            text,
+            placeholders=True  # default for now delete if not needed.
+        )
+        formatted_output['content'] = txt
+        if len(tags) > 0:
+            formatted_output['tags'] = tags
     else:
         print('The role is not model')
     return formatted_output

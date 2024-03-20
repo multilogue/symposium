@@ -79,10 +79,10 @@ def gpt_message(messages,
             print(f"Request status code: {response.status_code}")
             return None
         formatted, other = format_oai_output(msg_dump)
+        if other:
+            formatted["other"] = other
         if recorder:
             rec = {"messages": record, "response": formatted}
-            if other:
-                rec["other"] = other
             recorder.record(rec)
         return formatted
 

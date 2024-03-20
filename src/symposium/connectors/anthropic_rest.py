@@ -7,7 +7,10 @@ LICENSE file in the root directory of this source tree.
 """
 from os import environ
 import requests
-from ..adapters.ant_rest import prepared_ant_messages, formatted_ant_output
+from ..adapters.ant_rest import (prepared_ant_messages,
+                                 formatted_ant_output,
+                                 prepared_ant_prompt,
+                                 formatted_ant_completion)
 
 api_key             = environ.get("ANTHROPIC_API_KEY")
 organization        = environ.get("ANTHROPIC_ORGANIZATION", "")
@@ -18,23 +21,26 @@ completion_model    = environ.get("ANTHROPIC_COMPLETION_MODEL",'claude-instant-1
 message_model       = environ.get("ANTHROPIC_MESSAGE_MODEL",'claude-3-sonnet-20240229')
 # claude-3-opus-20240229, claude-3-sonnet-20240229
 
-HUMAN_PREFIX        = "\n\nHuman:"
-MACHINE_PREFIX      = "\n\nAssistant:"
-
 headers = {
     "x-api-key": api_key,
     "anthropic-version": "2023-06-01",
     "content-type": "application/json"
 }
 
+HUMAN_PREFIX        = "\n\nHuman:"
+MACHINE_PREFIX      = "\n\nAssistant:"
 
-def claud_complete(prompt=None, recorder=None, **kwargs):
+
+def claud_complete(messages=None, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
+    record, formatted_prompt = prepared_ant_prompt(
+        kwargs.get("messages", messages)
+    )
     json_data = {
         "model":                kwargs.get("model", completion_model),
         "max_tokens_to_sample": kwargs.get("max_tokens", 1),
-        "prompt":               kwargs.get("prompt", f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}"),
+        "prompt":               formatted_prompt,
         "stop_sequences":       kwargs.get("stop_sequences",[HUMAN_PREFIX]),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
@@ -56,10 +62,11 @@ def claud_complete(prompt=None, recorder=None, **kwargs):
         else:
             print(f"Request status code: {response.status_code}")
             completion_dump = None
+        formatted = formatted_ant_completion(completion_dump)
         if recorder:
-            rec = {"prompt": json_data["prompt"], "completion": completion_dump['completion']}
+            rec = {"messages": record, "response": formatted}
             recorder.record(rec)
-        return completion_dump
+        return formatted
     except Exception as e:
         print("Unable to generate Completions response")
         print(f"Exception: {e}")

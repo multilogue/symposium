@@ -5,6 +5,7 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+from ..util.xml_tags import extract_xml_tagged_content
 
 
 def prepared_oai_messages(input):
@@ -38,7 +39,7 @@ def prepared_oai_messages(input):
     return input, output_messages
 
 
-def formatted_oai_message(output_message):
+def formatted_oai_message(output):
     """
     :input_format
         messages = [
@@ -50,10 +51,16 @@ def formatted_oai_message(output_message):
         ]
     """
     formatted_output = {}
-    if output_message['role'] == 'assistant':
+    if output['role'] == 'assistant':
         formatted_output['role'] = 'machine'
         formatted_output['name'] = 'chatgpt'
-        formatted_output['content'] = output_message['content']
+        txt, tags = extract_xml_tagged_content(
+            output['content'],
+            placeholders=True # default for now delete if not needed.
+        )
+        formatted_output['content'] = txt
+        if len(tags) > 0:
+            formatted_output['tags'] = tags
     else:
         print('The role is not assistant')
     return formatted_output
@@ -69,7 +76,8 @@ def format_oai_output(output):
     if len(output['choices']) > 0:
         other = []
         for choice in output['choices']:
-            other.append(formatted_oai_message(choice))
+            other_formatted = formatted_oai_message(choice['message'])
+            other.append(other_formatted)
     else:
         other = None
     return formatted_output, other
