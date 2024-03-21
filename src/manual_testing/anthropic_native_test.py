@@ -13,22 +13,32 @@ grammateus = Grammateus(origin='anthropic', location='convers.log')
 ant = get_claud_client()
 
 messages = [
-    {'role': 'user','content': 'Hello'}
+    {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'},
 ]
-anthropic_message = claud_message(
+# kwargs = {
+#     "system": "be an Abstract Intellect.",
+#     "max_tokens": 256
+# }
+# anthropic_message = claud_message(
+#     client=ant,
+#     messages=messages,
+#     recorder=grammateus,
+#     **kwargs
+# )
+# if anthropic_message is not None:
+#     response=anthropic_message['content']
+
+kwargs = {
+    "max_tokens": 256
+}
+anthropic_complete = claud_complete(
     client=ant,
     messages=messages,
-    recorder=grammateus
+    recorder=grammateus,
+    **kwargs
 )
-response=anthropic_message['content']
-
-prompt = 'Hello'
-anthropic_complete = claud_complete(
-    ant,
-    prompt,
-    recorder=grammateus
-)
-completion = anthropic_complete['completion']
+if anthropic_complete is not None:
+    completion = anthropic_complete['content']
 
 if __name__ == '__main__':
     print('ok')

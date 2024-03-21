@@ -12,9 +12,9 @@ from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='anthropic', location='convers.log')
 
-# messages = [
-#     {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'},
-# ]
+messages = [
+    {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'},
+]
 # kwargs = {
 #     "system": "be an Abstract Intellect.",
 #     "max_tokens": 256
@@ -26,23 +26,17 @@ grammateus = Grammateus(origin='anthropic', location='convers.log')
 # )
 # if message is not None:
 #     response=message['content']
+
 kwargs = {
     "max_tokens": 256
 }
-
-messages = [
-    {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'}
-]
-
 message = claud_complete(
     messages,
     grammateus,
     **kwargs
 )
 if message is not None:
-    response = message
-
-print('ok')
+    response = message['content']
 
 
 if __name__ == '__main__':

@@ -19,7 +19,7 @@ messages = [
     {"role": "human",   "name": "alex",     "content": "Let's discuss human nature."}
 ]
 ```
-The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from  this format to a model-specific format and back from the format of its' response to the following output format.
+The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from this format to a model-specific format and back from the format of its' response to the following output format. This includes the text synthesis with older (but in)
 ## Output format
 The unified standard used by this package is:
 ```python
@@ -33,14 +33,13 @@ Name field will be set to 'chatgpt', 'claude', 'gemini' or 'palm'.<br>
 Tags are extracted from the text and put into a list. The placeholder for the tags is: (tag_name).<br>
 If there are more than one response, the other field will contain the list of the rest (transformed too).
 ## Anthropic
-Import:
+There are two ways of interaction with Anthropic API, through the REST API and through the native Anthropic Python library with 'client'. If you don't want any dependencies (and uncertainty) use `anthropic_rest` connector. If you want to install this dependency do `pip install symposium[anthropic_native]`.
+#### Messages
+REST version:
 ```python
 from symposium.connectors import anthropic_rest as ant
-```
-#### Messages
-```python
 messages = [
-  {"role": "user", "content": "Can we change human nature?"}
+    {"role": "human", "name": "alex", "content": "Can we change human nature?"}
 ]
 kwargs = {
     "model":                "claude-3-sonnet-20240229",
@@ -55,9 +54,27 @@ kwargs = {
 }
 response = ant.claud_message(messages,**kwargs)
 ```
-#### Completion
+Native version:
 ```python
-prompt = "Can we change human nature?"
+from symposium.connectors import anthropic_native as ant
+ant_client = ant.get_claud_client()
+messages = [
+    {"role": "human", "name": "alex", "content": "Can we change human nature?"}
+]
+anthropic_message = ant.claud_message(
+    client=ant_client,
+    messages=messages,
+    **kwargs
+)
+```
+#### Completion
+Again, there is a REST version and a native version.
+REST version:
+```python
+from symposium.connectors import anthropic_rest as ant
+messages = [
+    {"role": "human", "name": "alex", "content": "Can we change human nature?"}
+]
 kwargs = {
     "model":                "claude-instant-1.2",
     "max_tokens":           5,
@@ -67,7 +84,7 @@ kwargs = {
     "top_k":                250,
     "top_p":                0.5
 }
-response = ant.claud_complete(prompt, **kwargs)
+response = ant.claud_complete(messages, **kwargs)
 ```
 ## OpenAI
 Import:

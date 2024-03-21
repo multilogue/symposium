@@ -7,10 +7,10 @@ LICENSE file in the root directory of this source tree.
 """
 from os import environ
 import requests
-from ..adapters.ant_rest import (prepared_ant_messages,
-                                 formatted_ant_output,
-                                 prepared_ant_prompt,
-                                 formatted_ant_completion)
+from ..adapters.anth import (prepared_ant_messages,
+                             formatted_ant_output,
+                             prepared_ant_prompt,
+                             formatted_ant_completion)
 
 api_key             = environ.get("ANTHROPIC_API_KEY")
 organization        = environ.get("ANTHROPIC_ORGANIZATION", "")

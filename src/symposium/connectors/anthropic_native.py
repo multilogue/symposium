@@ -6,8 +6,10 @@ This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
 from os import environ
-from datetime import datetime
-from json import dumps
+from ..adapters.anth import (prepared_ant_messages,
+                             formatted_ant_output,
+                             prepared_ant_prompt,
+                             formatted_ant_completion)
 
 
 default_model       = environ.get("ANTHROPIC_DEFAULT_MODEL", "claude-instant-1.2")
@@ -29,13 +31,16 @@ def get_claud_client():
     return client
 
 
-def claud_complete(client, prompt, recorder=None, json=True, **kwargs):
+def claud_complete(client, messages, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
+    record, formatted_prompt = prepared_ant_prompt(
+        kwargs.get("messages", messages)
+    )
     kwa = {
         "model":                kwargs.get("model", completion_model),
         "max_tokens_to_sample": kwargs.get("max_tokens", 1),
-        "prompt":               kwargs.get("prompt", f"{HUMAN_PREFIX}{prompt}{MACHINE_PREFIX}"),
+        "prompt":               formatted_prompt,
         "stop_sequences":       kwargs.get("stop_sequences", [HUMAN_PREFIX]),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
@@ -46,30 +51,28 @@ def claud_complete(client, prompt, recorder=None, json=True, **kwargs):
         completion = client.completions.create(**kwa)
         completion_dump = completion.model_dump()
         if recorder:
-            log_message = {
-                "query": kwa,
-                "response": {"completion": completion_dump}
-            }
+            log_message = {"query": kwa, "response": {"message": completion_dump}}
             recorder.log_event(log_message)
     except Exception as e:
         print(e)
         return None
+    formatted = formatted_ant_completion(completion_dump)
     if recorder:
-        rec = {"prompt": kwa["prompt"], "completion": completion_dump}
+        rec = {"messages": record, "response": formatted}
         recorder.record(rec)
-    if json:
-        return completion_dump
-    else:
-        return completion
+    return formatted
 
 
-def claud_message(client, messages, recorder=None, json=True, **kwargs):
+def claud_message(client, messages, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
+    record, formatted_messages = prepared_ant_messages(
+        kwargs.get("messages", messages)
+    )
     kwa = {
         "model":                kwargs.get("model", message_model),
         "system":               kwargs.get("system", "answer concisely"),
-        "messages":             kwargs.get("messages", messages),
+        "messages":             formatted_messages,
         "max_tokens":           kwargs.get("max_tokens", 1),
         "stop_sequences":       kwargs.get("stop_sequences", ['stop', HUMAN_PREFIX]),
         "stream":               kwargs.get("stream", False),
@@ -87,11 +90,11 @@ def claud_message(client, messages, recorder=None, json=True, **kwargs):
     except Exception as e:
         print(e)
         return None
+    formatted = formatted_ant_output(msg_dump)
     if recorder:
-        rec = {'messages': kwa['messages'], 'response': msg_dump['content']}
+        rec = {"messages": record, "response": formatted}
         recorder.record(rec)
-
-
+    return formatted
 
 
 if __name__ == "__main__":

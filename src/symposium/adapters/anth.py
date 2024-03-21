@@ -5,9 +5,11 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-# from copy import deepcopy
-# import re
 from ..util.xml_tags import extract_xml_tagged_content
+
+
+HUMAN_PREFIX = "\n\nHuman:"
+MACHINE_PREFIX = "\n\nAssistant:"
 
 
 def prepared_ant_messages(input):
@@ -45,14 +47,19 @@ def formatted_ant_output(output):
         ]
     :outputformat
         messages = [
-            {"role": "machine", "name": "claude",   "content": "I will lay it out later"}
+            {"role": "machine", "name": "claude",
+            "content": "I will lay it out later",
+            "tags":[]}  # tags are optional and can be absent.
         ]
     """
     formatted_output = {}
     if output['role'] == 'assistant':
         formatted_output['role'] = 'machine'
         formatted_output['name'] = 'claude'
-        txt, tags = extract_xml_tagged_content(output['content'][0]['text'], placeholders=True)
+        txt, tags = extract_xml_tagged_content(
+            output['content'][0]['text'],
+            placeholders=True # default for now delete if not needed.
+        )
         formatted_output['content'] = txt
         if len(tags) > 0:
             formatted_output['tags'] = tags
@@ -61,18 +68,38 @@ def formatted_ant_output(output):
     return formatted_output
 
 
-def main():
-    # Example plain text with XML tags
-    string_with_tags = """
-    This is some text with <tag_one>XML-tagged content</tag_one>. And more and more second levelled tags. Another <tag_two>XML-tagged</tag_two> portion is here.
+def prepared_ant_prompt(input):
     """
-    # Extract tagged content and replace with placeholders
-    modified_text, tags = extract_xml_tagged_content(string_with_tags, placeholders=True)
-    print("Modified Text:", modified_text)
-    print(tags)
+    :input_format
+        messages = [
+            {"role": "human",   "name": "alex",     "content": "Can we discuss this?"}
+        ]
+    :output_format
+        prompt = "\n\nHuman: Can we discuss this?"
+    """
+    output = f"{HUMAN_PREFIX} {input[0]['content']}{MACHINE_PREFIX} "
+    return input, output
 
 
-
-if __name__ == "__main__":
-    main()
-    print("ok")
+def formatted_ant_completion(output):
+    """
+    :input_format
+        completion = "Yes.
+    :output_format
+        messages = [
+            {"role": "machine", "name": "claude",
+            "content": "I will lay it out later",
+            "tags":[]}  # tags are optional and can be absent.
+        ]
+    """
+    formatted_output = {}
+    formatted_output['role'] = 'machine'
+    formatted_output['name'] = 'claude'
+    txt, tags = extract_xml_tagged_content(
+        output['completion'],
+        placeholders=True  # default for now delete if not needed.
+    )
+    formatted_output['content'] = txt
+    if len(tags) > 0:
+        formatted_output['tags'] = tags
+    return formatted_output
