@@ -11,32 +11,33 @@ from grammateus.entities import Grammateus
 
 
 grammateus = Grammateus(origin='anthropic', location='convers.log')
-
 messages = [
-    {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'},
+    {'role': 'human',
+     'name': 'Alex',
+     'content': 'Put your name between the <name></name> tags.'},
 ]
+kwargs = {
+    "system": "Be an Abstract Intellect.",
+    "max_tokens": 256
+}
+message = claud_message(
+    messages=messages,
+    recorder=grammateus,
+    **kwargs
+)
+if message is not None:
+    response=message['content']
+
 # kwargs = {
-#     "system": "be an Abstract Intellect.",
 #     "max_tokens": 256
 # }
-# message = claud_message(
+# message = claud_complete(
 #     messages=messages,
 #     recorder=grammateus,
 #     **kwargs
 # )
 # if message is not None:
-#     response=message['content']
-
-kwargs = {
-    "max_tokens": 256
-}
-message = claud_complete(
-    messages,
-    grammateus,
-    **kwargs
-)
-if message is not None:
-    response = message['content']
+#     response = message['content']
 
 
 if __name__ == '__main__':

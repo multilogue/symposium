@@ -16,9 +16,9 @@ def prepared_ant_messages(input):
     """
     :input_format
         messages = [
-            {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
-            {"role": "machine", "name": "claude",   "content": "Yes."}
-            {"role": "human",   "name": "alex",     "content": "Then let's do it."}
+            {"role": "human", "name": "alex", "content": "Can we discuss this?"},
+            {"role": "machine", "name": "claude", "content": "Yes."}
+            {"role": "human", "name": "alex",     "content": "Then let's do it."}
         ]
     :outputformat
         messages = [

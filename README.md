@@ -7,7 +7,7 @@ The unified standard used by this package is as follows.
 ### 'System' messages
 ```python
 messages = [
-    {"role": "world",   "name": "openai",   "content": "Be an Abstract Intellect."}
+    {"role": "world", "name": "openai", "content": "Be an Antagonist."}
 ]
 ```
 Name field should be set to 'openai', 'anthropic', 'google_gemini' or 'google_palm'.
@@ -16,7 +16,7 @@ For the 'anthropic' name, the last
 ### 'User' messages
 ```python
 messages = [
-    {"role": "human",   "name": "alex",     "content": "Let's discuss human nature."}
+    {"role": "human", "name": "alex", "content": "Let's discuss human nature."}
 ]
 ```
 The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from this format to a model-specific format and back from the format of its' response to the following output format. This includes the text synthesis with older (but in)
@@ -24,12 +24,13 @@ The utility functions stored in the `adapters` sub-package transform incoming an
 The unified standard used by this package is:
 ```python
 message = {
-    "role": "machine",   "name": "claude",     "content": " ... ", 
+    "role": "machine", "name": "claude",  
+    "content": " ... ", 
     "tags": [{}],   # optional, if in the response, then returned
-    "other": [{}]   # optional, for n > 1
+    "other": [{}]   # optional, if n > 1
 }
 ```
-Name field will be set to 'chatgpt', 'claude', 'gemini' or 'palm'.<br>
+`name` field will be set to 'chatgpt', 'claude', 'gemini' or 'palm'.<br>
 Tags are extracted from the text and put into a list. The placeholder for the tags is: (tag_name).<br>
 If there are more than one response, the other field will contain the list of the rest (transformed too).
 ## Anthropic
