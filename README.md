@@ -16,7 +16,7 @@ For the 'anthropic' name, the last
 ### 'User' messages
 ```python
 messages = [
-    {"role": "human", "name": "alex", "content": "Let's discuss human nature."}
+    {"role": "human", "name": "Alex", "content": "Let's discuss human nature."}
 ]
 ```
 The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from this format to a model-specific format and back from the format of its' response to the following output format. This includes the text synthesis with older (but in)
@@ -39,6 +39,7 @@ There are two ways of interaction with Anthropic API, through the REST API and t
 REST version:
 ```python
 from symposium.connectors import anthropic_rest as ant
+
 messages = [
     {"role": "human", "name": "alex", "content": "Can we change human nature?"}
 ]
@@ -58,6 +59,7 @@ response = ant.claud_message(messages,**kwargs)
 Native version:
 ```python
 from symposium.connectors import anthropic_native as ant
+
 ant_client = ant.get_claud_client()
 messages = [
     {"role": "human", "name": "alex", "content": "Can we change human nature?"}
@@ -73,6 +75,7 @@ Again, there is a REST version and a native version.
 REST version:
 ```python
 from symposium.connectors import anthropic_rest as ant
+
 messages = [
     {"role": "human", "name": "alex", "content": "Can we change human nature?"}
 ]
@@ -94,6 +97,8 @@ from symposium.connectors import openai_rest as oai
 ```
 #### Messages
 ```python
+from symposium.connectors import openai_rest as oai
+
 messages = [
   {"role": "user", "content": "Can we change human nature?"}
 ]
@@ -117,6 +122,8 @@ responses = oai.gpt_message(messages, **kwargs)
 ```
 #### Completion
 ```python
+from symposium.connectors import openai_rest as oai
+
 prompt = "Can we change human nature?"
 kwargs = {
     "model":                "gpt-3.5-turbo-instruct",
@@ -145,6 +152,8 @@ from symposium.connectors import gemini_rest as gem
 ```
 #### Messages
 ```python
+from symposium.connectors import gemini_rest as gem
+
 messages = [
         {
             "role": "user",
@@ -185,6 +194,8 @@ from symposium.connectors import palm_rest as path
 ```
 #### Completion
 ```python
+from symposium.connectors import palm_rest as path
+
 kwargs = {
     "model": "text-bison-001",
     "prompt": str,
@@ -198,6 +209,8 @@ responses = path.palm_complete(prompt, **kwargs)
 ```
 #### Messages
 ```python
+from symposium.connectors import palm_rest as path
+
 context = "This conversation will be happening between Albert and Niels"
 examples = [
         {
