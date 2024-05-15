@@ -5,7 +5,7 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from symposium.connectors.gemini_rest import gemini_message
+from symposium.connectors.gemini_google import gemini_get_client, gemini_content
 from grammateus.entities import Grammateus
 
 
@@ -15,11 +15,9 @@ messages = [
         {"role":"human", "name":"alex", "content":"Put your name between the <name></name> tags."},
 ]
 kwargs = {
-    "model": "gemini-1.5-flash-latest",
     "max_tokens": 256
 }
-
-message = gemini_message(
+message = gemini_content(
     messages=messages,
     recorder=grammateus,
     **kwargs
