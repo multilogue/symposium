@@ -5,24 +5,32 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from symposium.connectors.gemini_google import gemini_get_client, gemini_content
+from symposium.connectors.gemini_google import gemini_get_client, gemini_complete, gemini_content
 from grammateus.entities import Grammateus
 
 
 grammateus = Grammateus(origin='gemini', location='convers.log')
 
-messages = [
-        {"role":"human", "name":"alex", "content":"Put your name between the <name></name> tags."},
-]
-kwargs = {
+client = gemini_get_client()
+
+kwa = {
     "max_tokens": 256
 }
-message = gemini_content(
-    messages=messages,
-    recorder=grammateus,
-    **kwargs
-)
-response=message
+prompt = "Who made Gemini?"
+
+resp = gemini_complete(client=client, prompt=prompt, recorder=grammateus, **kwa)
+# messages = [
+#         {"role":"human", "name":"alex", "content":"Put your name between the <name></name> tags."},
+# ]
+# kwargs = {
+#     "max_tokens": 256
+# }
+# message = gemini_content(
+#     messages=messages,
+#     recorder=grammateus,
+#     **kwargs
+# )
+# response=message
 print('ok')
 
 """
