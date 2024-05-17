@@ -5,7 +5,7 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from symposium.connectors.gemini_google import gemini_get_client, gemini_complete, gemini_content
+from symposium.connectors.gemini_google import gemini_get_client, gemini_complete, gemini_get_chat_session, gemini_start_chat_client, gemini_message
 from grammateus.entities import Grammateus
 
 
@@ -37,24 +37,36 @@ completion_kwargs = {
     "stream": False,
 }
 
-resp = gemini_complete(client=client,
-                       recorder=grammateus,
-                       **completion_kwargs)
+# resp = gemini_complete(client=client,
+#                        recorder=grammateus,
+#                        **completion_kwargs)
+#
+# print('ok')
 
-print('ok')
-
-# messages = [
-#         {"role":"human", "name":"alex", "content":"Put your name between the <name></name> tags."},
-# ]
+messages = [
+        {"role":"human", "name":"alex", "content":"can human nature be changed?"},
+]
 # kwargs = {
-#     "max_tokens": 256
+#     "max_tokens": 2000
 # }
-# message = gemini_content(
-#     messages=messages,
-#     recorder=grammateus,
-#     **kwargs
-# )
-# response=message
+
+chat = gemini_get_chat_session(client=client)
+# chat_client = gemini_start_chat_client(client=client)
+
+message_kwargs = {
+    'messages': messages,
+    'generation_config': generation_configuration,
+    'stream': False,
+    'tools': None,
+    'tool_config': None
+}
+
+message = gemini_message(chat_client=chat,
+                         recorder=grammateus,
+                         **message_kwargs
+)
+response=message
+
 print('ok')
 
 """

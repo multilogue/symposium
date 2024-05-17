@@ -10,9 +10,8 @@ from ..adapters.gem_rest import prepared_gem_messages, formatted_gem_output
 
 
 gemini_key              = environ.get("GOOGLE_API_KEY","")
-completion_model    = environ.get("GEMINI_DEFAULT_COMPLETION_MODEL", "gemini-1.5-flash-latest")
-message_model       = environ.get("GEMINI_DEFAULT_MESSAGE_MODEL", "gemini-1.5-flash-latest")
-embedding_model     = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "gemini-1.5-flash-latest")
+default_model    = environ.get("GEMINI_DEFAULT_MODEL", "gemini-1.5-flash-latest")
+embedding_model     = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "text-embedding-004")
 
 garbage = [
     {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT","threshold": "BLOCK_NONE"},
@@ -36,7 +35,7 @@ default_config = {
 def gemini_get_client(**kwargs):
     client = None
     model_kwargs = {
-        "model_name":           kwargs.get('model', completion_model),
+        "model_name":           kwargs.get('model', default_model),
         "safety_settings":      kwargs.get('safety_settings', garbage),
         "generation_config":    kwargs.get('generation_config', default_config),
         "tools":                kwargs.get('tools', None),
@@ -48,15 +47,35 @@ def gemini_get_client(**kwargs):
         client = genai.GenerativeModel(**model_kwargs)
     except ImportError:
         print("google-generativeai package is not installed")
-
     return client
 
 
-def gemini_content(client, **kwargs):
-    """ All parameters should be in kwargs, but they are optional
+def gemini_get_chat_session(client, **kwargs):
+    chat_session = None
+    default_chat_kwargs = {
+        'model': client,
+        'history': kwargs.get('history', None),
+        'enable_automatic_function_calling': kwargs.get('function_calling', False),
+    }
+    try:
+        from google.generativeai import ChatSession
+        chat_session = ChatSession(**default_chat_kwargs)
+    except Exception as e:
+        print("could not get chat session.")
+    return chat_session
+
+
+def gemini_start_chat_client(client,**kwargs):
     """
-    response = client.generate_content("What is the meaning of life?")
-    return response.text
+    To initiate chat history = []
+    To re-initiate a chat history = [message, message, ...]
+    """
+    chat_client = None
+    try:
+        chat_client = client.start_chat(**kwargs)
+    except Exception as e:
+        print("client could not start chat.")
+    return chat_client
 
 
 def gemini_complete(client, prompt, recorder=None, json=True, **kwargs):
@@ -93,12 +112,65 @@ def gemini_complete(client, prompt, recorder=None, json=True, **kwargs):
         print(e)
         return None
     if recorder:
-        rec = {"prompt": kwargs["prompt"], "completion": completion_dump}
+        rec = {"prompt": generation_kwargs["contents"], "completion": completion_dump}
         recorder.record(rec)
     if json:
         return completion_dump
     else:
         return completion
+
+
+def gemini_message(chat_client, messages, recorder=None, json=True, **kwargs):
+    """ All parameters should be in kwargs, but they are optional
+    """
+    kwarg_config = kwargs.get('generation_config', default_config)
+
+    gen_conf = {
+        'candidate_count': kwarg_config.get('n', default_config.get('candidate_count')),
+        'stop_sequences': kwarg_config.get('stop_sequences', default_config.get('stop_sequences')),
+        'max_output_tokens': kwarg_config.get('max_tokens', default_config.get('max_output_tokens')),
+        'temperature': kwarg_config.get('temperature', default_config.get('temperature')),
+        'top_p': kwarg_config.get('top_p', default_config.get('top_p')),
+        'top_k': kwarg_config.get('top_k', default_config.get('top_k')),
+        'response_mime_type': kwarg_config.get('mime_type', default_config.get('response_mime_type')),
+        'response_schema': kwarg_config.get('schema', default_config.get('response_schema'))
+    }
+
+    generation_kwargs = {
+        'content': kwargs.get('messages', messages),
+        'generation_config': gen_conf,
+        'safety_settings': garbage,
+        'stream': False,
+        'tools': kwargs.get('tools', None),
+        'tool_config': kwargs.get('tool_config', None)
+    }
+
+    """
+        content: content_types.ContentType,
+        *,
+        generation_config: generation_types.GenerationConfigType = None,
+        safety_settings: safety_types.SafetySettingOptions = None,
+        stream: bool = False,
+        tools: (content_types.FunctionLibraryType | None) = None,
+        tool_config: (content_types.ToolConfigType | None) = None
+    """
+    try:
+        response = chat_client.send_message(**generation_kwargs)
+        msg_dump = response.text
+        if recorder:
+            log_message = {"query": generation_kwargs, "response": {"message": msg_dump}}
+            recorder.log_event(log_message)
+    except Exception as e:
+        print(e)
+        return None
+
+    if recorder:
+        rec = {'messages': generation_kwargs['messages'], 'response': msg_dump}
+        recorder.record(rec)
+    if json:
+        return msg_dump
+    else:
+        return response
 
 
 if __name__ == "__main__":
