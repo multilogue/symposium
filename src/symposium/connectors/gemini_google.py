@@ -93,7 +93,7 @@ def gemini_complete(client, prompt, recorder=None, json=True, **kwargs):
         print(e)
         return None
     if recorder:
-        rec = {"prompt": kwargs["prompt"], "completion": completion_dump['choices']}
+        rec = {"prompt": kwargs["prompt"], "completion": completion_dump}
         recorder.record(rec)
     if json:
         return completion_dump
