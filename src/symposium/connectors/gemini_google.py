@@ -21,20 +21,31 @@ garbage = [
     {"category": "HARM_CATEGORY_DANGEROUS_CONTENT","threshold": "BLOCK_NONE"}
 ]
 
+default_config = {
+    'candidate_count': 1,
+    'stop_sequences': ['stop'],
+    'max_output_tokens': 500,
+    'temperature': 0.5,
+    'top_p': 0.9,
+    'top_k': 1,
+    'response_mime_type': None,
+    'response_schema': None
+}
+
 
 def gemini_get_client(**kwargs):
     client = None
+    model_kwargs = {
+        "model_name":           kwargs.get('model', completion_model),
+        "safety_settings":      kwargs.get('safety_settings', garbage),
+        "generation_config":    kwargs.get('generation_config', default_config),
+        "tools":                kwargs.get('tools', None),
+        "tool_config":          kwargs.get('tool_config', None),
+        "system_instruction":   kwargs.get('system', None)
+    }
     try:
         import google.generativeai as genai
-        # generation_config = genai.GenerationConfig(
-        #     max_output_tokens=kwargs.get('max_tokens_to_sample', 5),
-        #     temperature=kwargs.get('temperature', 0.5),
-        #     top_k=kwargs.get('top_k', 1),
-        #     top_p=kwargs.get('top_p', 0.9),
-        # )
-        client = genai.GenerativeModel(model_name= kwargs.get('model_name', 'gemini-1.5-flash-latest'),
-                                       safety_settings=garbage,
-                                       system_instruction=kwargs.get('system_instruction', None))
+        client = genai.GenerativeModel(**model_kwargs)
     except ImportError:
         print("google-generativeai package is not installed")
 
@@ -49,64 +60,40 @@ def gemini_content(client, **kwargs):
 
 
 def gemini_complete(client, prompt, recorder=None, json=True, **kwargs):
-    """ All parameters should be in kwargs, but they are optional
+    """ All parameters should be in kwargs, but they are all optional
     """
-    kwoo = {
-        "model":            kwargs.get("model", completion_model),
-        "max_tokens":       kwargs.get("max_tokens_to_sample", 5),
-        "prompt":           kwargs.get("prompt", prompt),
-        "suffix":           kwargs.get("suffix", None),
-        "stop":             kwargs.get("stop_sequences", ["stop"]),
-        "n":                kwargs.get("n", 1),
-        "best_of":          kwargs.get("best_of", 1),
-        "seed":             kwargs.get("seed", None),
-        "frequency_penalty":kwargs.get("frequency_penalty", None),
-        "presence_penalty": kwargs.get("presence_penalty", None),
-        "logit_bias":       kwargs.get("logit_bias", {}),
-        "logprobs":         kwargs.get("logprobs", None),
-        "temperature":      kwargs.get("temperature", 0.5),
-        "top_p":            kwargs.get("top_p", 0.5),
-        # "user":             kwargs.get("user", None)
-    }
-    """
-        generate_content(
-        contents: content_types.ContentsType,
-        *,
-        generation_config: (generation_types.GenerationConfigType | None) = None,
-        safety_settings: (safety_types.SafetySettingOptions | None) = None,
-        stream: bool = False,
-        tools: (content_types.FunctionLibraryType | None) = None,
-        tool_config: (content_types.ToolConfigType | None) = None,
-        request_options: (dict[str, Any] | None) = None
-    ) -> generation_types.GenerateContentResponse
-    """
+
+    kwarg_config = kwargs.get('generation_config', default_config)
+
     gen_conf = {
-        "candidate_count": 1,
-        "stop_sequences": [],
-        "max_output_tokens": kwargs.get("max_tokens_to_sample", 1000),
-        "temperature": kwargs.get("temperature", 0.5),
-        "top_p":  kwargs.get("top_p", 0.5),
-        "top_k": kwargs.get("top_k", 1),
-        "response_mime_type": "text/plain",
-        "response_schema":  None
+        'candidate_count':      kwarg_config.get('n', default_config.get('candidate_count')),
+        'stop_sequences':       kwarg_config.get('stop_sequences',    default_config.get('stop_sequences')),
+        'max_output_tokens':    kwarg_config.get('max_tokens', default_config.get('max_output_tokens')),
+        'temperature':          kwarg_config.get('temperature', default_config.get('temperature')),
+        'top_p':                kwarg_config.get('top_p', default_config.get('top_p')),
+        'top_k':                kwarg_config.get('top_k', default_config.get('top_k')),
+        'response_mime_type':   kwarg_config.get('mime_type', default_config.get('response_mime_type')),
+        'response_schema':      kwarg_config.get('schema', default_config.get('response_schema'))
     }
-    kwa = {
-        # "contents": kwargs.get("prompt", prompt),
-        # "generation_config": gen_conf,
-        "safety_settings": garbage,
-        "stream": False,
-          }
+
+    generation_kwargs = {
+        'contents':             kwargs.get('prompt', prompt),
+        'generation_config':    gen_conf,
+        'safety_settings':      garbage,
+        'stream':               False,
+    }
+
     try:
-        completion = client.generate_content(prompt,generation_config=gen_conf, **kwa)
+        completion = client.generate_content(**generation_kwargs)
         completion_dump = completion.text
         if recorder:
-            log_message = {"query": kwa, "response": {"completion": completion_dump}}
+            log_message = {"query": generation_kwargs, "response": {"completion": completion_dump}}
             recorder.log_event(log_message)
     except Exception as e:
         print(e)
         return None
     if recorder:
-        rec = {"prompt": kwa["prompt"], "completion": completion_dump['choices']}
+        rec = {"prompt": kwargs["prompt"], "completion": completion_dump['choices']}
         recorder.record(rec)
     if json:
         return completion_dump

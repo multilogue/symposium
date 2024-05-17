@@ -10,7 +10,20 @@ from symposium.connectors.anthropic_native import get_claud_client, claud_comple
 from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='anthropic', location='convers.log')
-ant = get_claud_client()
+
+client_kwargs = {
+    "api_key": None,
+    "auth_token": None,
+    "base_url": None,
+    "timeout": 100.0,
+    "max_retries": 3,
+    "default_query": None,
+    "http_client": None,
+    "transport": None,
+    "connection_pool_limits": None,
+    "_strict_response_validation": False
+}
+ant = get_claud_client(**client_kwargs)
 
 messages = [
     {'role': 'human', 'name': 'alex', 'content': 'Put your name between the <name></name> tags.'},

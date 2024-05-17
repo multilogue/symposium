@@ -21,11 +21,11 @@ HUMAN_PREFIX = "\n\nHuman:"
 MACHINE_PREFIX = "\n\nAssistant:"
 
 
-def get_claud_client():
+def get_claud_client(**kwargs):
     client = None
     try:
         import anthropic
-        client = anthropic.Anthropic()
+        client = anthropic.Anthropic(**kwargs)
     except ImportError:
         print("anthropic package is not installed")
     return client

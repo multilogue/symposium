@@ -11,14 +11,38 @@ from grammateus.entities import Grammateus
 
 grammateus = Grammateus(origin='gemini', location='convers.log')
 
-client = gemini_get_client()
-
-kwa = {
-    "max_tokens": 256
+client_kwargs = {
+    'model': 'gemini-1.5-flash-latest',
+    'tools': None,
+    'tool_config': None,
+    'system': 'Your are a language model.'
 }
-prompt = "Who made Gemini?"
 
-resp = gemini_complete(client=client, prompt=prompt, recorder=grammateus, **kwa)
+client = gemini_get_client(**client_kwargs)
+
+generation_configuration = {
+    'n':                1,
+    'stop_sequences':   ['stop'],
+    'max_tokens':       5000,
+    'temperature':      0.5,
+    'top_p':            0.5,
+    'top_k':            1,
+    'mime_type':        "text/plain",
+    'schema':           None
+}
+
+completion_kwargs = {
+    'prompt': 'Can human nature be changed?',
+    'generation_config': generation_configuration,
+    "stream": False,
+}
+
+resp = gemini_complete(client=client,
+                       recorder=grammateus,
+                       **completion_kwargs)
+
+print('ok')
+
 # messages = [
 #         {"role":"human", "name":"alex", "content":"Put your name between the <name></name> tags."},
 # ]
