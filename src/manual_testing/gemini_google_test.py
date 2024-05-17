@@ -43,9 +43,10 @@ completion_kwargs = {
 #
 # print('ok')
 
-messages = [
-        {"role":"human", "name":"alex", "content":"can human nature be changed?"},
-]
+messages = {"role":"user",
+         # "name":"alex",
+         "parts":[{"text":"can human nature be changed?"}, {"text":"Tell me in one sentence."}]
+}
 # kwargs = {
 #     "max_tokens": 2000
 # }

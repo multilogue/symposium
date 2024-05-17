@@ -22,7 +22,7 @@ garbage = [
 
 default_config = {
     'candidate_count': 1,
-    'stop_sequences': ['stop'],
+    'stop_sequences': ['STOP'],
     'max_output_tokens': 500,
     'temperature': 0.5,
     'top_p': 0.9,
@@ -165,7 +165,7 @@ def gemini_message(chat_client, messages, recorder=None, json=True, **kwargs):
         return None
 
     if recorder:
-        rec = {'messages': generation_kwargs['messages'], 'response': msg_dump}
+        rec = {'messages': generation_kwargs['content'], 'response': msg_dump}
         recorder.record(rec)
     if json:
         return msg_dump
