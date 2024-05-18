@@ -20,10 +20,10 @@ completion_model    = environ.get("OPENAI_COMPLETION_MODEL",'gpt-3.5-turbo-instr
 embedding_model     = environ.get("OPENAI_EMBEDDING_MODEL",'text-embedding-3-small')  # text-similarity-davinci-001
 
 
-def get_openai_client():
+def get_openai_client(**kwargs):
     try:
         from openai import OpenAI
-        client = OpenAI()
+        client = OpenAI(**kwargs)
     except ImportError:
         print("openai package is not installed       ```pip install symposium[openai]")
         return None

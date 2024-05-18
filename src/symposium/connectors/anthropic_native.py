@@ -23,9 +23,13 @@ MACHINE_PREFIX = "\n\nAssistant:"
 
 def get_claud_client(**kwargs):
     client = None
+    client_kwargs = {
+        "timeout":      kwargs.get("timeout", 100.0),
+        "max_retries":  kwargs.get("max_retries", 3),
+    }
     try:
         import anthropic
-        client = anthropic.Anthropic(**kwargs)
+        client = anthropic.Anthropic(**client_kwargs)
     except ImportError:
         print("anthropic package is not installed")
     return client

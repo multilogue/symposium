@@ -1,25 +1,26 @@
 # Symposium
-Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' packagee is an attempt to do that. It is a work in progress and will change without notice. If you need a recording capabilities, install the `grammateus` package and pass an instance of Grammateus/recorder in your calls to connectors.
-## Unification
+Interactions with multiple language models require at least a little bit of a 'unified' interface. The 'symposium' package is an attempt to do that. It is a work in progress and will change without notice. If you need a recording capabilities, install the `grammateus` package and pass an instance of Grammateus/recorder in your calls to connectors.
+## Unification of messaging
 One of the motivations for this package was the need in a unified format for messaging language models, which is particularly useful if you are going to experiment with interactions between them.
 
 The unified standard used by this package is as follows.
-### 'System' messages
+### 'System' message
 ```python
 messages = [
-    {"role": "world", "name": "openai", "content": "Be an Antagonist."}
+    {"role": "world", 
+     "name": "openai", 
+     "content": "Be an Antagonist."}
 ]
 ```
 Name field should be set to 'openai', 'anthropic', 'google_gemini' or 'google_palm'.
-For the 'anthropic' name, the last 
-'system' message will be used as the 'system' parameter in the request. For palm_messages v1beta3 format this message will be used in the 'context' parameter.
+For the 'anthropic' and 'google_gemini', the first 'system' message will be used as the 'system' parameter in the request. For the 'google_palm' v1beta3 format 'system' message will be used in the 'context' parameter.
 ### 'User' messages
 ```python
 messages = [
     {"role": "human", "name": "Alex", "content": "Let's discuss human nature."}
 ]
 ```
-The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from this format to a model-specific format and back from the format of its' response to the following output format. This includes the text synthesis with older (but in)
+The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from this format to a model-specific format and back from the format of its response to the following output format. This includes the text synthesis with older (but in)
 ## Output format
 The unified standard used by this package is:
 ```python
@@ -33,15 +34,16 @@ message = {
 `name` field will be set to 'chatgpt', 'claude', 'gemini' or 'palm'.<br>
 Tags are extracted from the text and put into a list. The placeholder for the tags is: (tag_name).<br>
 If there are more than one response, the other field will contain the list of the rest (transformed too).
-## Anthropic
+## Anthropic Messages
 There are two ways of interaction with Anthropic API, through the REST API and through the native Anthropic Python library with 'client'. If you don't want any dependencies (and uncertainty) use `anthropic_rest` connector. If you want to install this dependency do `pip install symposium[anthropic_native]`.
-#### Messages
-REST version:
+#### Anthropic REST messages
 ```python
 from symposium.connectors import anthropic_rest as ant
 
 messages = [
-    {"role": "human", "name": "alex", "content": "Can we change human nature?"}
+    {"role": "human", 
+     "name": "alex", 
+     "content": "Can we change human nature?"}
 ]
 kwargs = {
     "model":                "claude-3-sonnet-20240229",
@@ -56,23 +58,35 @@ kwargs = {
 }
 response = ant.claud_message(messages,**kwargs)
 ```
-Native version:
+#### Anthropic (SDK) messages:
 ```python
 from symposium.connectors import anthropic_native as ant
 
-ant_client = ant.get_claud_client()
+client_kwargs = {
+        "timeout":      100.0,
+        "max_retries":  3,
+    }
+ant_client = ant.get_claud_client(**client_kwargs)
+
 messages = [
-    {"role": "human", "name": "alex", "content": "Can we change human nature?"}
+    {"role": "human", 
+     "name": "alex", 
+     "content": "Can we change human nature?"}
 ]
+kwargs = {
+    "model":                "claude-3-sonnet-20240229",
+    "max_tokens":           500,
+}
+
 anthropic_message = ant.claud_message(
     client=ant_client,
     messages=messages,
     **kwargs
 )
 ```
-#### Completion
+#### Anthropic Completion
 Again, there is a REST version and a native version.
-REST version:
+#### Anthropic REST completion
 ```python
 from symposium.connectors import anthropic_rest as ant
 
@@ -81,7 +95,7 @@ messages = [
 ]
 kwargs = {
     "model":                "claude-instant-1.2",
-    "max_tokens":           5,
+    "max_tokens":           500,
     # "prompt":               prompt,
     "stop_sequences":       [ant.HUMAN_PREFIX],
     "temperature":          0.5,
@@ -90,12 +104,37 @@ kwargs = {
 }
 response = ant.claud_complete(messages, **kwargs)
 ```
-## OpenAI
-Import:
+#### Anthropic (SDK) completion
+Completions are still _very_ useful. I think for Anthropic and long contexts timeout and retries make this particular way to use the API better.
 ```python
-from symposium.connectors import openai_rest as oai
+from symposium.connectors import anthropic_native as ant
+
+client_kwargs = {
+        "timeout":      100.0,
+        "max_retries":  3,
+    }
+ant_client = ant.get_claud_client(**client_kwargs)
+
+messages = [
+    {"role": "human", 
+     "name": "alex", 
+     "content": "Can we change human nature?"}
+]
+kwargs = {
+    "model":                "claude-3-sonnet-20240229",
+    "max_tokens":           500,
+}
+
+anthropic_message = ant.claud_complete(
+    client=ant_client,
+    messages=messages,
+    **kwargs
+)
 ```
-#### Messages
+
+## OpenAI
+The main template of openai v1  as groq people call it.
+#### OpenAI (REST) Messages
 ```python
 from symposium.connectors import openai_rest as oai
 
@@ -120,7 +159,28 @@ kwargs = {
 }
 responses = oai.gpt_message(messages, **kwargs)
 ```
-#### Completion
+#### OpenAI Native Messages
+```python
+from symposium.connectors import openai_native as oai
+
+client_kwargs = {
+        "timeout":      100.0,
+        "max_retries":  3,
+}
+client = oai.get_openai_client(**client_kwargs)
+messages = [
+  {"role": "human", 
+   'name': 'Alex',
+   "content": "Can we change human nature?"}
+]
+kwargs = {
+    "model":                "gpt-3.5-turbo",
+    "max_tokens":           500,
+}
+message = oai.openai_message(client, messages, **kwargs)
+```
+#### OpenAI (REST) Completion
+Completions are still _very_ useful. They should not be overburdened with the message formatting, because that is not what they are for.
 ```python
 from symposium.connectors import openai_rest as oai
 
@@ -145,12 +205,12 @@ kwargs = {
 }
 responses = oai.gpt_complete(prompt, **kwargs)
 ```
-## Gemini
-Import:
+#### OpenAI Native completion.
 ```python
-from symposium.connectors import gemini_rest as gem
 ```
-#### Messages
+## Gemini
+I'm not sure whether the google Python SDK will have retries as Anthropic and OpenAI do. Because of that the REST versions of queries may be preferable for now (until the API will start failing under the uploads of million token contexts, then they will probably add retries, or will try to bundle the _**useless**_ GCP to this service). 
+#### Gemini (REST) messages.
 ```python
 from symposium.connectors import gemini_rest as gem
 
@@ -184,18 +244,25 @@ kwargs = {
     "top_p":                0.9,
     "top_k":                None
 }
-response = gem.gemini_content(messages, **kwargs)
+response = gem.gemini_message(messages, **kwargs)
 ```
- 
-## PaLM
-Import:
+#### Gemini native messages
 ```python
-from symposium.connectors import palm_rest as path
 ```
 #### Completion
 ```python
+```
+#### Gemini native completion:
+```python
+```
+
+## PaLM
+PaLM is still very good, despite the short context window; v1beta2 and v1beta3 APIs are still working.
+#### PaLM (Rest) completion
+```python
 from symposium.connectors import palm_rest as path
 
+prompt = "Can we change human nature?"
 kwargs = {
     "model": "text-bison-001",
     "prompt": str,
@@ -207,7 +274,7 @@ kwargs = {
 }
 responses = path.palm_complete(prompt, **kwargs)
 ```
-#### Messages
+#### PaLM (Rest) messages.
 ```python
 from symposium.connectors import palm_rest as path
 
@@ -241,5 +308,5 @@ kwargs = {
     "top_p": 0.5,
     "top_k": None
 }
-responses = path.palm_content(context, examples, messages, **kwargs)
+responses = path.palm_message(context, examples, messages, **kwargs)
 ```
