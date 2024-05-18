@@ -9,8 +9,8 @@ from os import environ
 from ..adapters.gem_rest import prepared_gem_messages, formatted_gem_output
 
 
-gemini_key              = environ.get("GOOGLE_API_KEY","")
-default_model    = environ.get("GEMINI_DEFAULT_MODEL", "gemini-1.5-flash-latest")
+gemini_key          = environ.get("GOOGLE_API_KEY","")
+default_model       = environ.get("GEMINI_DEFAULT_MODEL", "gemini-1.5-flash-latest")
 embedding_model     = environ.get("GEMINI_DEFAULT_EMBEDDING_MODEL", "text-embedding-004")
 
 garbage = [
@@ -65,20 +65,7 @@ def gemini_get_chat_session(client, **kwargs):
     return chat_session
 
 
-def gemini_start_chat_client(client,**kwargs):
-    """
-    To initiate chat history = []
-    To re-initiate a chat history = [message, message, ...]
-    """
-    chat_client = None
-    try:
-        chat_client = client.start_chat(**kwargs)
-    except Exception as e:
-        print("client could not start chat.")
-    return chat_client
-
-
-def gemini_complete(client, prompt, recorder=None, json=True, **kwargs):
+def gemini_complete(client, prompt, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are all optional
     """
 
@@ -114,13 +101,11 @@ def gemini_complete(client, prompt, recorder=None, json=True, **kwargs):
     if recorder:
         rec = {"prompt": generation_kwargs["contents"], "completion": completion_dump}
         recorder.record(rec)
-    if json:
-        return completion_dump
-    else:
-        return completion
+
+    return completion_dump
 
 
-def gemini_message(chat_client, messages, recorder=None, json=True, **kwargs):
+def gemini_message(chat_session, messages, recorder=None, **kwargs):
     """ All parameters should be in kwargs, but they are optional
     """
     kwarg_config = kwargs.get('generation_config', default_config)
@@ -145,17 +130,8 @@ def gemini_message(chat_client, messages, recorder=None, json=True, **kwargs):
         'tool_config': kwargs.get('tool_config', None)
     }
 
-    """
-        content: content_types.ContentType,
-        *,
-        generation_config: generation_types.GenerationConfigType = None,
-        safety_settings: safety_types.SafetySettingOptions = None,
-        stream: bool = False,
-        tools: (content_types.FunctionLibraryType | None) = None,
-        tool_config: (content_types.ToolConfigType | None) = None
-    """
     try:
-        response = chat_client.send_message(**generation_kwargs)
+        response = chat_session.send_message(**generation_kwargs)
         msg_dump = response.text
         if recorder:
             log_message = {"query": generation_kwargs, "response": {"message": msg_dump}}
@@ -167,10 +143,8 @@ def gemini_message(chat_client, messages, recorder=None, json=True, **kwargs):
     if recorder:
         rec = {'messages': generation_kwargs['content'], 'response': msg_dump}
         recorder.record(rec)
-    if json:
-        return msg_dump
-    else:
-        return response
+
+    return msg_dump
 
 
 if __name__ == "__main__":

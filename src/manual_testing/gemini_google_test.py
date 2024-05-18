@@ -5,17 +5,19 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from symposium.connectors.gemini_google import gemini_get_client, gemini_complete, gemini_get_chat_session, gemini_start_chat_client, gemini_message
+from symposium.connectors.gemini_google import gemini_get_client, gemini_complete, gemini_get_chat_session, gemini_message
 from grammateus.entities import Grammateus
 
 
 grammateus = Grammateus(origin='gemini', location='convers.log')
 
+system_instruction = 'Your are a language model.'
+
 client_kwargs = {
     'model': 'gemini-1.5-flash-latest',
     'tools': None,
     'tool_config': None,
-    'system': 'Your are a language model.'
+    'system': system_instruction
 }
 
 client = gemini_get_client(**client_kwargs)
@@ -43,16 +45,15 @@ completion_kwargs = {
 #
 # print('ok')
 
-messages = {"role":"user",
-         # "name":"alex",
-         "parts":[{"text":"can human nature be changed?"}, {"text":"Tell me in one sentence."}]
+messages = {
+    "role":"user",
+    "parts":[
+        {"text":"can human nature be changed?"},
+        {"text":"Tell me in one sentence."}
+    ]
 }
-# kwargs = {
-#     "max_tokens": 2000
-# }
 
 chat = gemini_get_chat_session(client=client)
-# chat_client = gemini_start_chat_client(client=client)
 
 message_kwargs = {
     'messages': messages,
@@ -62,10 +63,9 @@ message_kwargs = {
     'tool_config': None
 }
 
-message = gemini_message(chat_client=chat,
+message = gemini_message(chat_session=chat,
                          recorder=grammateus,
-                         **message_kwargs
-)
+                         **message_kwargs)
 response=message
 
 print('ok')
