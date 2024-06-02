@@ -5,22 +5,26 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
+import yaml
+
 from symposium.connectors.gemini_google import gemini_get_client, gemini_complete, gemini_get_chat_session, gemini_message
 from grammateus.entities import Grammateus
+from yaml import safe_load as yl
 
 
 grammateus = Grammateus(origin='gemini', location='convers.log')
 
 system_instruction = 'Your are a language model.'
 
-client_kwargs = {
-    'model': 'gemini-1.5-flash-latest',
-    'tools': None,
-    'tool_config': None,
-    'system': system_instruction
-}
 
-client = gemini_get_client(**client_kwargs)
+client_kwargs =f""" # this is a yaml text
+    model:          gemini-1.5-flash-latest  # name of the model
+    tools:          ~  # comma separated list of tools or ~ or null
+    tool_config:    ~
+    system:         {system_instruction}
+"""
+
+client = gemini_get_client(**yl(client_kwargs))
 
 generation_configuration = {
     'n':                1,

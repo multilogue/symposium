@@ -5,26 +5,29 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-import os
 from symposium.connectors.groq_rest import grq_message, grq_models
 from grammateus.entities import Grammateus
+from yaml import safe_load as yl
 
 
 # mod = grq_models()
 grammateus = Grammateus(origin='groq', location='conversation_test.log')
 
-messages = [
-            {"role": "human",   "name": "alex",     "content": "Put your name between the <name></name> tags."}
-]
-kwargs = {
-    "max_tokens": 10,
-    "n": 1
-}
+messages = """
+    - role: human
+      name: alex
+      content: Explain to me in 5 thusand words or more, can human nature be changed?
+"""
+kwargs = """
+    model: llama3-70b-8192
+    max_tokens: 10000
+    n: 1
+"""
 
 message = grq_message(
-    messages=messages,
+    messages=yl(messages),
     recorder=grammateus,
-    **kwargs
+    **yl(kwargs)
 )
 response=message
 

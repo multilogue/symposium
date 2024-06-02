@@ -5,20 +5,20 @@ One of the motivations for this package was the need in a unified format for mes
 
 The unified standard used by this package is as follows.
 ### 'System' message
-```python
-messages = [
-    {"role": "world", 
-     "name": "openai", 
-     "content": "Be an Antagonist."}
-]
+```YAML
+messages:
+  - role: world
+    name: openai 
+    content: Be an Antagonist.
 ```
 Name field should be set to 'openai', 'anthropic', 'google_gemini' or 'google_palm'.
 For the 'anthropic' and 'google_gemini', the first 'system' message will be used as the 'system' parameter in the request. For the 'google_palm' v1beta3 format 'system' message will be used in the 'context' parameter.
 ### 'User' messages
-```python
-messages = [
-    {"role": "human", "name": "Alex", "content": "Let's discuss human nature."}
-]
+```YAML
+messages:
+  - role: human
+    name: Alex 
+    content: Let's discuss human nature.
 ```
 The utility functions stored in the `adapters` sub-package transform incoming and outgoing messages of particular model from this format to a model-specific format and back from the format of its response to the following output format. This includes the text synthesis with older (but in)
 ## Output format
