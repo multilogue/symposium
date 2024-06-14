@@ -5,7 +5,7 @@
 This source code is licensed under the license found in the
 LICENSE file in the root directory of this source tree.
 """
-from ..util.xml_tags import extract_xml_tagged_content
+# from ..util.xml_tags import extract_xml_tagged_content
 
 
 HUMAN_PREFIX = "\n\nHuman:"
@@ -56,13 +56,13 @@ def formatted_ant_output(output):
     if output['role'] == 'assistant':
         formatted_output['role'] = 'machine'
         formatted_output['name'] = 'claude'
-        txt, tags = extract_xml_tagged_content(
-            output['content'][0]['text'],
-            placeholders=True # default for now delete if not needed.
-        )
-        formatted_output['content'] = txt
-        if len(tags) > 0:
-            formatted_output['tags'] = tags
+        # txt, tags = extract_xml_tagged_content(
+        #     output['content'][0]['text'],
+        #     placeholders=True # default for now delete if not needed.
+        # )
+        formatted_output['content'] = output['content'][0]['text']
+        # if len(tags) > 0:
+        #     formatted_output['tags'] = tags
     else:
         print('The role is not assistant')
     return formatted_output
@@ -84,7 +84,7 @@ def prepared_ant_prompt(input):
 def formatted_ant_completion(output):
     """
     :input_format
-        completion = "Yes.
+        completion = "Yes."
     :output_format
         messages = [
             {"role": "machine", "name": "claude",
@@ -95,11 +95,11 @@ def formatted_ant_completion(output):
     formatted_output = {}
     formatted_output['role'] = 'machine'
     formatted_output['name'] = 'claude'
-    txt, tags = extract_xml_tagged_content(
-        output['completion'],
-        placeholders=True  # default for now delete if not needed.
-    )
-    formatted_output['content'] = txt
-    if len(tags) > 0:
-        formatted_output['tags'] = tags
+    # txt, tags = extract_xml_tagged_content(
+    #     output['completion'],
+    #     placeholders=True  # default for now delete if not needed.
+    # )
+    formatted_output['content'] = output['completion']
+    # if len(tags) > 0:
+    #     formatted_output['tags'] = tags
     return formatted_output
