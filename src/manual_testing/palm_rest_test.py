@@ -57,6 +57,8 @@ kwargs = {
 }
 responses = palm_message(messages=messages, context=context, examples=examples, **kwargs)
 
+print('ok')
+
 """
 context = "This conversation will be happening between Albert and Niels"
 examples = [

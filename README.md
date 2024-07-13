@@ -49,6 +49,14 @@ messages = f"""    # this is a string in YAML format, f is used for parameters
   - role:   human  # not the idiotic 'user', God forbid.
     name:   Alex 
     content: Can we change human nature?
+    
+  - role:   machine
+    name:   claude
+    content: Not clear...
+    
+  - role:   human
+    name:   Alex
+    content: Still, can we?
 """
 kwargs = f"""  # this is a string in YAML format, f is used for parameters
   model:        claude-3-sonnet-20240229
@@ -80,7 +88,7 @@ ant_client = ant.get_claud_client(**yl(client_kwargs))
 messages = """
     role: human
     name: alex
-    content: Can we change human nature?}
+    content: Can we change human nature?
 """
 kwargs = """
     model:                claude-3-sonnet-20240229
@@ -100,45 +108,50 @@ Again, there is a REST version and a native version.
 from symposium.connectors import anthropic_rest as ant
 from yaml import safe_load as yl
 
-messages = [
-    {"role": "human", "name": "alex", "content": "Can we change human nature?"}
-]
-kwargs = {
-    "model":                "claude-instant-1.2",
-    "max_tokens":           500,
-    # "prompt":               prompt,
-    "stop_sequences":       [ant.HUMAN_PREFIX],
-    "temperature":          0.5,
-    "top_k":                20,
-    "top_p":                0.5
-}
-response = ant.claud_complete(messages, **kwargs)
+messages = """
+  role: human
+  name: Alex
+  content: Can we change human nature?
+"""
+kwargs = """
+  model:                claude-instant-1.2
+  max_tokens:           500,
+# prompt:               prompt
+  stop_sequences:
+      - stop
+      - "\n\n\nHuman:"
+  temperature:          0.5
+  top_k:                20,
+  top_p:                0.5
+"""
+response = ant.claud_complete(yl(messages), **yl(kwargs))
 ```
 #### Anthropic (SDK) completion
 Completions are still _very_ useful. I think for Anthropic and long contexts timeout and retries make this particular way to use the API better.
 ```python
 from symposium.connectors import anthropic_native as ant
+from yaml import safe_load as yl
 
-client_kwargs = {
-        "timeout":      100.0,
-        "max_retries":  3,
-    }
-ant_client = ant.get_claud_client(**client_kwargs)
+client_kwargs = """
+  timeout:      100.0
+  max_retries:  3
+"""
+ant_client = ant.get_claud_client(**yl(client_kwargs))
 
-messages = [
-    {"role": "human", 
-     "name": "alex", 
-     "content": "Can we change human nature?"}
-]
-kwargs = {
-    "model":                "claude-3-sonnet-20240229",
-    "max_tokens":           500,
-}
+messages = """
+  role: human
+  name: alex
+  content: Can we change human nature?
+"""
+kwargs = """
+  model:                claude-instant-1.2
+  max_tokens:           500
+"""
 
 anthropic_message = ant.claud_complete(
     client=ant_client,
-    messages=messages,
-    **kwargs
+    messages=yl(messages),
+    **yl(kwargs)
 )
 ```
 
@@ -147,52 +160,60 @@ The main template of openai v1  as groq people call it.
 #### OpenAI (REST) Messages
 ```python
 from symposium.connectors import openai_rest as oai
+from yaml import safe_load as yl
 
-messages = [
-  {"role": "user", "content": "Can we change human nature?"}
-]
-kwargs = {
-    "model":                "gpt-3.5-turbo",
-    # "messages":             [],
-    "max_tokens":           5,
-    "n":                    1,
-    "stop_sequences":       ["stop"],
-    "seed":                 None,
-    "frequency_penalty":    None,
-    "presence_penalty":     None,
-    "logit_bias":           None,
-    "logprobs":             None,
-    "top_logprobs":         None,
-    "temperature":          0.5,
-    "top_p":                0.5,
-    "user":                 None
-}
-responses = oai.gpt_message(messages, **kwargs)
+messages = """
+  role: user, 
+  content: Can we change human nature?
+"""
+kwargs = """
+  model:                gpt-3.5-turbo
+    # messages:             []
+  max_tokens:           5
+  n:                    1
+  stop_sequences:
+    - stop
+  seed:
+  frequency_penalty:
+  presence_penalty:
+  logit_bias:
+  logprobs:
+  top_logprobs:
+  temperature:          0.5
+  top_p:                0.5
+  user:
+"""
+responses = oai.gpt_message(yl(messages), **yl(kwargs))
 ```
 #### OpenAI Native Messages
 ```python
 from symposium.connectors import openai_native as oai
+from yaml import safe_load as yl
 
-client_kwargs = {
-        "timeout":      100.0,
-        "max_retries":  3,
-}
-client = oai.get_openai_client(**client_kwargs)
-messages = [
-  {"role": "human", 
-   'name': 'Alex',
-   "content": "Can we change human nature?"}
-]
-kwargs = {
-    "model":                "gpt-3.5-turbo",
-    "max_tokens":           500,
-}
-message = oai.openai_message(client, messages, **kwargs)
+client_kwargs = """
+  timeout:      100.0
+  max_retries:  3
+"""
+client = oai.get_openai_client(**yl(client_kwargs))
+
+messages = """
+  - role: human
+    name: Alex
+    content: Can we change human nature?
+"""
+
+kwargs = """
+  model:                gpt-3.5-turbo
+  max_tokens:           500 
+"""
+
+message = oai.openai_message(client, yl(messages), **yl(kwargs))
 ```
 #### OpenAI (REST) Completion
 Completions are still _very_ useful. They should not be overburdened with the message formatting, because that is not what they are for.
 ```python
 from symposium.connectors import openai_rest as oai
+from yaml import safe_load as yl
 
 prompt = "Can we change human nature?"
 kwargs = {
@@ -223,38 +244,39 @@ I'm not sure whether the google Python SDK will have retries as Anthropic and Op
 #### Gemini (REST) messages.
 ```python
 from symposium.connectors import gemini_rest as gem
+from yaml import safe_load as yl
 
-messages = [
-        {
-            "role": "user",
-            "parts": [
-                {"text": "Human nature can not be changed, because..."},
-                {"text": "...and that is why human nature can not be changed."}
-            ]
-        },{
-            "role": "model",
-            "parts": [
-                {"text": "Should I synthesize a text that will be placed between these two statements and follow the previous instruction while doing that?"}
-            ]
-        },{
-            "role": "user",
-            "parts": [
-                {"text": "Yes, please do."},
-                {"text": "Create a most concise text possible, preferably just one sentence}"}
-            ]
-        }
-]
-kwargs = {
-    "model":                "gemini-1.0-pro",
-    # "messages":             [],
-    "stop_sequences":       ["STOP","Title"],
-    "temperature":          0.5,
-    "max_tokens":           5,
-    "n":                    1,
-    "top_p":                0.9,
-    "top_k":                None
-}
-response = gem.gemini_message(messages, **kwargs)
+messages = """
+  - role: user
+    parts:
+      - text: Human nature can not be changed, because...
+      - text: ...and that is why human nature can not be changed.
+      
+  - role: model
+    parts:
+      - text: >
+          Should I synthesize a text that will be placed
+          between these two statements and follow the previous 
+          instruction while doing that?
+        
+  - role: user
+    parts:
+      - text: Yes, please do.
+      - text: Create a most concise text possible, preferably just one sentence.
+"""
+kwargs = """
+  model:                gemini-1.0-pro
+    # messages:             []
+  stop_sequences":
+    - STOP
+    - Title
+  temperature:          0.5
+  max_tokens:           5
+  n:                    1
+  top_p:                0.9
+  top_k:
+"""
+response = gem.gemini_message(yl(messages), **yl(kwargs))
 ```
 #### Gemini native messages
 ```python
@@ -271,58 +293,61 @@ PaLM is still very good, despite the short context window; v1beta2 and v1beta3 A
 #### PaLM (Rest) completion
 ```python
 from symposium.connectors import palm_rest as path
+from yaml import safe_load as yl
 
 prompt = "Can we change human nature?"
-kwargs = {
-    "model": "text-bison-001",
-    "prompt": str,
-    "temperature": 0.5,
-    "n": 1,
-    "max_tokens": 10,
-    "top_p": 0.5,
-    "top_k": None
-}
-responses = path.palm_complete(prompt, **kwargs)
+kwargs = f"""
+  model: text-bison-001,
+  prompt: {prompt}
+  temperature: 0.5
+  n: 1
+  max_tokens: 10
+  top_p: 0.5
+  top_k:
+"""
+responses = path.palm_complete(**yl(kwargs))
 ```
 #### PaLM (Rest) messages.
 ```python
 from symposium.connectors import palm_rest as path
+from yaml import safe_load as yl
 
 context = "This conversation will be happening between Albert and Niels"
-examples = [
-        {
-            "input": {"author": "Albert", "content": "We didn't talk about quantum mechanics lately..."},
-            "output": {"author": "Niels", "content": "Yes, indeed."}
-        }
-]
-messages = [
-        {
-            "author": "Albert",
-            "content": "Can we change human nature?"
-        }, {
-            "author": "Niels",
-            "content": "Not clear..."
-        }, {
-            "author": "Albert",
-            "content": "Seriously, can we?"
-        }
-]
-kwargs = {
-    "model": "chat-bison-001",
-    # "context": str,
-    # "examples": [],
-    # "messages": [],
-    "temperature": 0.5,
+examples = """
+  - input:
+      author: Albert
+      content: We didn't talk about quantum mechanics lately...
+      
+  - output:
+      author": Niels
+      content: Yes, indeed.
+"""
+messages = """
+  - author: Albert
+    content: Can we change human nature?
+    
+  - author: Niels
+    content: Not clear...
+    
+  - author: Albert
+    content: Seriously, can we?
+"""
+kwargs = """
+  model: chat-bison-001,
+    # context: str
+    # examples: []
+    # messages: []
+  temperature: 0.5
     # no 'max_tokens', beware the effects of that!
-    "n": 1,
-    "top_p": 0.5,
-    "top_k": None
-}
-responses = path.palm_message(context, examples, messages, **kwargs)
+  n: 1
+  top_p: 0.5
+  top_k: None
+"""
+responses = path.palm_message(context, yl(examples), yl(messages), **yl(kwargs))
 ```
 
 ## Tools and function calls
-This package is for pure natural language interactons only. Companies implement what they call 'tools' or 'functions' is many ways that can only loosely be called 'compatible'. The integrations with these 'tools' have been removed from this package into a separate package called `machine-shop`.
+This package is for pure natural language interactions only. Companies implement what they call 'tools' or 'functions' in many ways that can only loosely be called 'compatible'. The integrations with these 'tools' have been removed from this package into a separate package called `machine-shop`.
 
 ## Recording
 If you need recording capabilities, install the `grammateus` package and pass an instance of Grammateus/recorder in your calls to connectors.
