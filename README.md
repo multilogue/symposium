@@ -47,11 +47,11 @@ from yaml import safe_load as yl
 
 messages = f"""    # this is a string in YAML format, f is used for parameters
   - role:   human  # not the idiotic 'user', God forbid.
-    name:   Alex 
+    name:   Alex   # human name should be capitalized
     content: Can we change human nature?
     
   - role:   machine
-    name:   claude
+    name:   claude # machine name should not be capitalized
     content: Not clear...
     
   - role:   human
@@ -79,14 +79,14 @@ from symposium.connectors import anthropic_native as ant
 from yaml import safe_load as yl
 
 client_kwargs = """
-    timeout:      100.0
-    max_retries:  3
+  timeout:      100.0
+  max_retries:  3
 """
 
 ant_client = ant.get_claud_client(**yl(client_kwargs))
 
 messages = """
-    role: human
+  - role: human
     name: alex
     content: Can we change human nature?
 """
@@ -109,9 +109,9 @@ from symposium.connectors import anthropic_rest as ant
 from yaml import safe_load as yl
 
 messages = """
-  role: human
-  name: Alex
-  content: Can we change human nature?
+  - role: human
+    name: Alex
+    content: Can we change human nature?
 """
 kwargs = """
   model:                claude-instant-1.2
@@ -139,9 +139,9 @@ client_kwargs = """
 ant_client = ant.get_claud_client(**yl(client_kwargs))
 
 messages = """
-  role: human
-  name: alex
-  content: Can we change human nature?
+  - role: human
+    name: alex
+    content: Can we change human nature?
 """
 kwargs = """
   model:                claude-instant-1.2
@@ -163,8 +163,13 @@ from symposium.connectors import openai_rest as oai
 from yaml import safe_load as yl
 
 messages = """
-  role: user, 
-  content: Can we change human nature?
+  - role: world
+    name: openai
+    content: You are an eloquent assistant. Give concise but substantive answers without introduction and conclusion.
+    
+  - role: human
+    name: Alex 
+    content: Can we change human nature?
 """
 kwargs = """
   model:                gpt-3.5-turbo
@@ -239,6 +244,7 @@ responses = oai.gpt_complete(prompt, **kwargs)
 #### OpenAI Native completion.
 ```python
 ```
+
 ## Gemini
 I'm not sure whether the google Python SDK will have retries as Anthropic and OpenAI do. Because of that the REST versions of queries may be preferable for now (until the API will start failing under the uploads of million token contexts, then they will probably add retries, or will try to bundle the _**useless**_ GCP to this service). 
 #### Gemini (REST) messages.

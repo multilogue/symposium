@@ -8,22 +8,42 @@ LICENSE file in the root directory of this source tree.
 import os
 from symposium.connectors.openai_rest import gpt_message
 from grammateus.entities import Grammateus
+from yaml import safe_load as yl
 
 
 grammateus = Grammateus(origin='openai', location='conversation_test.log')
 
-messages = [
-            {"role": "human",   "name": "alex",     "content": "Put your name between the <name></name> tags."}
-]
-kwargs = {
-    "max_tokens": 256,
-    "n": 1
-}
+messages = """
+  - role: world
+    name: openai
+    content: You are an eloquent assistant. Give concise but substantive answers without introduction and conclusion.
+    
+  - role: human
+    name: Alex 
+    content: Can we change human nature?
+"""
+kwargs = """
+  model:                gpt-3.5-turbo
+    # messages:             []
+  max_tokens:           200
+  n:                    1
+  stop_sequences:
+    - stop
+  seed:
+  frequency_penalty:
+  presence_penalty:
+  logit_bias:
+  logprobs:
+  top_logprobs:
+  temperature:          0.5
+  top_p:                0.5
+  user:
+"""
 
 message = gpt_message(
-    messages=messages,
+    messages=yl(messages),
     recorder=grammateus,
-    **kwargs
+    **yl(kwargs)
 )
 response=message
 
