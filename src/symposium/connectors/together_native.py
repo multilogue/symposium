@@ -46,7 +46,7 @@ def together_complete(client, messages, recorder=None, **kwargs):
         "model":                kwargs.get("model", completion_model),
         "max_tokens_to_sample": kwargs.get("max_tokens", 1),
         "prompt":               formatted_prompt,
-        "stop_sequences":       kwargs.get("stop_sequences", [HUMAN_PREFIX]),
+        "stop_sequences":       kwargs.get("stop_sequences", ["stop"]),
         "temperature":          kwargs.get("temperature", 0.5),
         "top_k":                kwargs.get("top_k", 250),
         "top_p":                kwargs.get("top_p", 0.5),
@@ -81,17 +81,17 @@ def together_message(client, messages, recorder=None, json=True, **kwargs):
         "n":                kwargs.get("n", 1),
         "stop":             kwargs.get("stop_sequences", ["stop"]),
         "response_format":  kwargs.get("response_format", None),
-        "tools":            kwargs.get("tools", None),
-        "tool_choice":      kwargs.get("tool_choice", "auto"),
-        "seed":             kwargs.get("seed", None),
+        # "tools":            kwargs.get("tools", None),
+        # "tool_choice":      kwargs.get("tool_choice", "auto"),
+        # "seed":             kwargs.get("seed", None),
         "frequency_penalty": kwargs.get("frequency_penalty", None),
         "presence_penalty": kwargs.get("presence_penalty", None),
         "logit_bias":       kwargs.get("logit_bias", None),
         "logprobs":         kwargs.get("logprobs", None),
-        "top_logprobs":     kwargs.get("top_logprobs", None),
+        # "top_logprobs":     kwargs.get("top_logprobs", None),
         "temperature":      kwargs.get("temperature", 0.5),
         "top_p":            kwargs.get("top_p", 0.5),
-        "user":             kwargs.get("user", None)
+        # "user":             kwargs.get("user", None)
         }
     try:
         msg = client.chat.completions.create(**chat_kwargs)

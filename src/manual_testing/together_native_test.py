@@ -26,8 +26,10 @@ messages = """
       content: Put your name between the <name></name> tags.
 """
 kwargs = """
-    max_tokens: 100
+    model: meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo
+    max_tokens: 8000
     n: 1
+    stop_sequences: [stop, <|eot_id|>]
 """
 
 message = together_message(
