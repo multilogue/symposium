@@ -26,6 +26,7 @@ messages = """
       content: Put your name between the <name></name> tags.
 """
 kwargs = """
+    model: llama-3.1-70b-versatile
     max_tokens: 100
     n: 1
 """
