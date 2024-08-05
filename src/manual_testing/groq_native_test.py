@@ -23,13 +23,16 @@ client = get_groq_client(**yl(client_kwargs))
 messages = """
     - role: human
       name: alex
-      content: Put your name between the <name></name> tags.
+      content: Tell me who was Gerhard Gentzen and how he died.
 """
 kwargs = """
     model: llama-3.1-70b-versatile
-    max_tokens: 100
+    max_tokens: 8000
     n: 1
+    stop_sequences: [stop, <|eot_id|>]
 """
+
+kwa = yl(kwargs)
 
 message = grq_message(
     client=client,
