@@ -12,7 +12,7 @@ import requests
 from ..adapters.tog_lma import prepared_together_messages, formatted_together_output, formatted_together_completion, prepared_together_prompt
 
 
-api_key             = environ.get("TOGETHER_API_KEY")
+api_key             = environ.get("TOGETHER_API_KEY",)
 api_base            = environ.get("TOGETHER_BASE_URL", "https://api.together.xyz/v1")
 default_model       = environ.get("TOGETHER_DEFAULT_MODEL", "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo")
 completion_model    = environ.get("TOGETHER_COMPLETION_MODEL","meta-llama/Meta-Llama-3-70B")
@@ -93,6 +93,7 @@ def together_message(client, messages, recorder=None, json=True, **kwargs):
         "top_p":            kwargs.get("top_p", 0.5),
         # "user":             kwargs.get("user", None)
         }
+
     try:
         msg = client.chat.completions.create(**chat_kwargs)
         msg_dump = msg.model_dump()

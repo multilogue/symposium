@@ -243,6 +243,36 @@ responses = oai.gpt_complete(prompt, **kwargs)
 ```
 #### OpenAI Native completion.
 ```python
+from symposium.connectors import openai_native as oai
+from yaml import safe_load as yl
+
+client_kwargs = """
+  timeout:      100.0
+  max_retries:  3
+"""
+client = oai.get_openai_client(**yl(client_kwargs))
+
+prompt = "Can we change human nature?"
+kwargs = {
+    "model":                "gpt-3.5-turbo-instruct",
+    # "prompt":               str,
+    "suffix":               str,
+    "max_tokens":           500,
+    "n":                    1,
+    "best_of":              None,
+    "stop_sequences":       ["stop"],
+    "seed":                 None,
+    "frequency_penalty":    None,
+    "presence_penalty":     None,
+    "logit_bias":           None,
+    "logprobs":             None,
+    "top_logprobs":         None,
+    "temperature":          0.5,
+    "top_p":                0.5,
+    "user":                 None        
+}
+
+response = oai.openai_complete(client, prompt, **kwargs)
 ```
 
 ## Gemini
