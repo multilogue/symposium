@@ -221,25 +221,26 @@ from symposium.connectors import openai_rest as oai
 from yaml import safe_load as yl
 
 prompt = "Can we change human nature?"
-kwargs = {
-    "model":                "gpt-3.5-turbo-instruct",
-    # "prompt":               str,
-    "suffix":               str,
-    "max_tokens":           5,
-    "n":                    1,
-    "best_of":              None,
-    "stop_sequences":       ["stop"],
-    "seed":                 None,
-    "frequency_penalty":    None,
-    "presence_penalty":     None,
-    "logit_bias":           None,
-    "logprobs":             None,
-    "top_logprobs":         None,
-    "temperature":          0.5,
-    "top_p":                0.5,
-    "user":                 None
-}
-responses = oai.gpt_complete(prompt, **kwargs)
+kwargs = """
+    model:                gpt-3.5-turbo-instruct
+    # prompt:               str
+    suffix:               
+    max_tokens:           5
+    n:                    1
+    best_of:              2
+    stop_sequences:
+      - stop
+    seed:                 
+    frequency_penalty:    
+    presence_penalty:     
+    logit_bias:           
+    logprobs:             
+    top_logprobs:         
+    temperature:          0.5
+    top_p:                0.5
+    user:                 
+"""
+responses = oai.gpt_complete(prompt, **yl(kwargs))
 ```
 
 #### OpenAI Native completion.
