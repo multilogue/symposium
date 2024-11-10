@@ -8,13 +8,13 @@ LICENSE file in the root directory of this source tree.
 from ..util.xml_tags import extract_xml_tagged_content
 
 
-def prepared_xai_messages(input):
+def prepared_grk_messages(input):
     """
     :input_format
         messages = [
-            {"role": "world",   "name": "openai",   "content": "Be an Abstract Intellect."},
+            {"role": "world",   "name": "xai",   "content": "Be an Abstract Intellect."},
             {"role": "human",   "name": "alex",     "content": "Can we discuss this?"},
-            {"role": "machine", "name": "chatgpt",  "content": "Yes."}
+            {"role": "machine", "name": "xaigro",  "content": "Yes."}
             {"role": "human",   "name": "alex",     "content": "Then let's do it."}
         ]
     :outputformat
@@ -39,7 +39,7 @@ def prepared_xai_messages(input):
     return input, output_messages
 
 
-def formatted_xai_message(output):
+def formatted_grk_message(output):
     """
     :input_format
         messages = [
@@ -66,17 +66,17 @@ def formatted_xai_message(output):
     return formatted_output
 
 
-def format_xai_output(output):
+def format_grk_output(output):
     """
     :list of choices
     :return: formatted_output, other
     """
     solo_candidate = output['choices'].pop(0)
-    formatted_output = formatted_xai_message(solo_candidate['message'])
+    formatted_output = formatted_grk_message(solo_candidate['message'])
     if len(output['choices']) > 0:
         other = []
         for choice in output['choices']:
-            other_formatted = formatted_xai_message(choice['message'])
+            other_formatted = formatted_grk_message(choice['message'])
             other.append(other_formatted)
     else:
         other = None

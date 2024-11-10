@@ -2,7 +2,7 @@
 Interactions with multiple language models require at least a little bit of a 'unified' format of interactions. The 'symposium' package is an attempt to do that. It is a work in progress and will change without notice. 
 
 ## Format of texts and configurations.
-Unlike the 'coding community' which keeps typing endless curly brackets around objects and double quotes around every string and parameter name... I prefer entering my texts and parameters as strings in YAML format (with comments that are usually more than helpful in this day and age) and converting them to Python dictionaries only when they are being used (see examples below). The main convenience is that you can ingest multi-line strings (which most of the 'prompts' are) meaningfully formatted in the text of your code with the help of '>' and '|' operators.
+Unlike the 'coding community' that keeps typing endless curly brackets around objects and double quotes around every string and parameter name... I prefer entering my texts and parameters as strings in YAML format (with comments that are usually more than helpful in this day and age) and converting them to Python dictionaries only when they are being used (see theexamples below). The main convenience is that you can ingest multi-line strings (which most of the 'prompts' are) meaningfully formatted in the text of your code with the help of '>' and '|' operators.
 Besides, it requires only one click to input the whole text if you are debugging the code.
 If you don't like this idea this package is probably not for you.
 
@@ -17,7 +17,7 @@ messages:
     name: openai 
     content: Be an Antagonist.
 ```
-Name field should be set to 'openai', 'anthropic', 'cohere', 'google_gemini' or 'google_palm'. For the 'anthropic', 'cohere' and 'google_gemini', the first 'world'/'system' message will be used as the 'system' (or 'preamble') parameter in the request. For the 'google_palm' v1beta3 format 'system' message will be used in the 'context' parameter.
+Name field should be set to 'openai', 'anthropic','xai', 'cohere', 'google_gemini' or 'google_palm'. For the 'anthropic', 'cohere' and 'google_gemini', the first 'world'/'system' message will be used as the 'system' (or 'preamble') parameter in the request. For the 'google_palm' v1beta3 format 'system' message will be used in the 'context' parameter.
 
 ### 'User' messages
 ```YAML
@@ -35,7 +35,7 @@ messages:
     name: claude  
     content: This is the response of the model.
 ```
-`name` field will be set to 'chatgpt', 'claude', 'coral', 'gemini' or 'palm'.<br>
+`name` field will be set to 'chatgpt', 'claude', 'xaigro', 'coral', 'gemini' or 'palm'.<br>
 
 ## Anthropic Messages
 There are two ways of interaction with Anthropic API, through the REST API and through the native Anthropic Python library with 'client'. If you don't want any dependencies (and uncertainty) but at the expense of repeating the queries yourself if the fail - use the `anthropic_rest` connector. If you want to install this dependency do `pip install symposium[anthropic_native]` and skip to the next section.
@@ -275,8 +275,48 @@ kwargs = {
 response = oai.openai_complete(client, prompt, **kwargs)
 ```
 
+## XAI
+XAI uses the same formatting for API queries as Anthropic and OpenAI.
+Moreover, besides the now standard Messages interface they implemented the Completions interface with `suffix` and `best_of` parameters the way it existed in OpenAI for GPT-3 models, which makes their service particularly attractive for researchers.
+
+
+#### XAI REST messages
+```python
+from symposium.connectors import xai_rest as xai
+from yaml import safe_load as yl
+
+messages = f"""    # this is a string in YAML format, f is used for parameters
+  - role:   human  # not the idiotic 'user', God forbid.
+    name:   Alex   # human name should be capitalized
+    content: Can we change human nature?
+    
+  - role:   machine
+    name:   xaigro # machine name should not be capitalized
+    content: Not clear...
+    
+  - role:   human
+    name:   Alex
+    content: Still, can we?
+"""
+kwargs = f"""  # this is a string in YAML format, f is used for parameters
+  model:        grok-beta
+  system:       Always answer concisely
+  messages:     {messages}
+  max_tokens:   5
+  stop_sequences:
+    - stop
+  stream:       False
+  temperature:  0.5
+  top_k:        10
+  top_p:        0.5
+"""
+response = xai.xai_message(**yl(kwargs))
+```
+
+
 ## Gemini
 I'm not sure whether the google Python SDK will have retries as Anthropic and OpenAI do. Because of that the REST versions of queries may be preferable for now (until the API will start failing under the uploads of million token contexts, then they will probably add retries, or will try to bundle the _**useless**_ GCP to this service). 
+
 #### Gemini (REST) messages.
 ```python
 from symposium.connectors import gemini_rest as gem
@@ -314,12 +354,15 @@ kwargs = """
 """
 response = gem.gemini_message(yl(messages), **yl(kwargs))
 ```
+
 #### Gemini native messages
 ```python
 ```
+
 #### Completion
 ```python
 ```
+
 #### Gemini native completion:
 ```python
 ```

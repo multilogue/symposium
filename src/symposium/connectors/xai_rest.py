@@ -8,7 +8,7 @@ LICENSE file in the root directory of this source tree.
 from typing import List, Dict
 from os import environ
 import requests
-from ..adapters.xai_rest import prepared_xai_messages, format_xai_output
+from ..adapters.xai_rest import prepared_grk_messages, format_grk_output
 
 
 api_key             = environ.get("XAI_API_KEY")
@@ -29,7 +29,7 @@ headers = {
 }
 
 
-def xai_message(messages,
+def grk_message(messages,
                 recorder,
                 **kwargs):
 
@@ -42,7 +42,7 @@ def xai_message(messages,
             presence_penalty = -2.0 to 2.0
             max_tokens      = number of tokens
     """
-    record, formatted_messages = prepared_xai_messages(
+    record, formatted_messages = prepared_grk_messages(
         kwargs.get("messages", messages)
     )
     json_data = {
@@ -78,7 +78,7 @@ def xai_message(messages,
         else:
             print(f"Request status code: {response.status_code}")
             return None
-        formatted, other = format_xai_output(msg_dump)
+        formatted, other = format_grk_output(msg_dump)
         if other:
             formatted["other"] = other
         if recorder:
@@ -92,7 +92,7 @@ def xai_message(messages,
         return None
 
 
-def xai_fill_in(text_before, text_after, **kwargs):
+def grk_fill_in(text_before, text_after, **kwargs):
     """A specialized completions request.
         kwargs:
             temperature     = 0 to 1.0
@@ -141,7 +141,7 @@ def xai_fill_in(text_before, text_after, **kwargs):
         return responses
 
 
-def xai_complete(prompt, **kwargs) -> List:
+def grk_complete(prompt, **kwargs) -> List:
     """A completions endpoint call through requests.
         kwargs:
             temperature     = 0 to 1.0
@@ -193,7 +193,7 @@ def xai_complete(prompt, **kwargs) -> List:
         return responses
 
 
-def xai_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> List[Dict]:
+def grk_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> List[Dict]:
     """Returns the embedding of a text string.
         kwargs:
         user = string
@@ -217,7 +217,7 @@ def xai_embeddings(input_list: List[str], model=embedding_model, **kwargs) -> Li
         return embeddings_list
 
 
-def xai_models() -> List:
+def grk_models() -> List:
     """Returns a list of available models."""
     models_list = []
     try:
@@ -237,7 +237,7 @@ def xai_models() -> List:
 
 
 if __name__ == '__main__':
-    mod = xai_models()
+    mod = grk_models()
     # print(mod)
     the_text_before = 'Can human nature be changed?'
     the_text_after = 'That is why human nature can not be changed.'
@@ -274,7 +274,7 @@ if __name__ == '__main__':
     kwa = {
         "dimensions": 1536
     }
-    emb = xai_embeddings(inp, model='text-embedding-3-large', **kwa) #, model='text-similarity-davinci-001')
+    emb = grk_embeddings(inp, model='text-embedding-3-large', **kwa) #, model='text-similarity-davinci-001')
     # #
     # # num = count_tokens(prompt1)
     # #
@@ -282,7 +282,7 @@ if __name__ == '__main__':
     # #                       text_after=text_after,
     # #                       **kwa)
     #
-    continuations = xai_complete(text_before=the_text_before, model='grok-beta', **kwa)
+    continuations = grk_complete(text_before=the_text_before, model='grok-beta', **kwa)
     # #
     # # answers = answer(messages=msgs, **kwa)
     """
