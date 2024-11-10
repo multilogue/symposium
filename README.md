@@ -241,6 +241,7 @@ kwargs = {
 }
 responses = oai.gpt_complete(prompt, **kwargs)
 ```
+
 #### OpenAI Native completion.
 ```python
 from symposium.connectors import openai_native as oai
@@ -276,8 +277,8 @@ response = oai.openai_complete(client, prompt, **kwargs)
 ```
 
 ## XAI
-XAI uses the same formatting for API queries as Anthropic and OpenAI.
-Moreover, besides the now standard Messages interface they implemented the Completions interface with `suffix` and `best_of` parameters the way it existed in OpenAI for GPT-3 models, which makes their service particularly attractive for researchers.
+XAI uses a _very_ similar formatting for API queries as Anthropic and OpenAI.
+Moreover, besides the now standard Messages interface they implemented the Completions interface with `suffix` and `best_of` parameters the way it existed in OpenAI API for all GPT-3 models (now it's for one only and is called 'legacy'), which makes their service particularly attractive for researchers.
 
 
 #### XAI REST messages
@@ -285,34 +286,73 @@ Moreover, besides the now standard Messages interface they implemented the Compl
 from symposium.connectors import xai_rest as xai
 from yaml import safe_load as yl
 
-messages = f"""    # this is a string in YAML format, f is used for parameters
-  - role:   human  # not the idiotic 'user', God forbid.
-    name:   Alex   # human name should be capitalized
+messages = f"""         # this is a string in YAML format, f is used for parameters
+  - role: world
+    name: xai
+    content: You are an eloquent assistant. Give concise but substantive answers without introduction and conclusion.
+    
+  - role:   human       # not the idiotic 'user', God forbid.
+    name:   Alex        # human name should be capitalized
     content: Can we change human nature?
-    
+
   - role:   machine
-    name:   xaigro # machine name should not be capitalized
+    name:   xaigro      # machine name should not be capitalized
     content: Not clear...
-    
+
   - role:   human
     name:   Alex
     content: Still, can we?
 """
-kwargs = f"""  # this is a string in YAML format, f is used for parameters
-  model:        grok-beta
-  system:       Always answer concisely
-  messages:     {messages}
-  max_tokens:   5
+kwargs = """
+  model:                grok-beta
+    # messages:             []     # you can put your messages here
+  max_tokens:           1024
+  n:                    1
   stop_sequences:
     - stop
-  stream:       False
-  temperature:  0.5
-  top_k:        10
-  top_p:        0.5
+  stream:               False
+  seed:                 246
+  frequency_penalty:
+  presence_penalty:
+  logit_bias:
+  logprobs:
+  top_logprobs:
+  temperature:          0.5
+  top_p:                0.5
+  user:
 """
-response = xai.xai_message(**yl(kwargs))
+response = xai.grk_message(messages=yl(messages), **yl(kwargs))
 ```
 
+#### XAI (REST) Completion
+Completions are _very_ useful. They should not be overburdened with the message formatting, because that is not what they are for.
+```python
+from symposium.connectors import xai_rest as xai
+from yaml import safe_load as yl
+
+prompt = "Can we change human nature?"
+kwargs = """
+  model:                grok-beta
+    # prompt:             []     # you can put your prompt here as well
+  suffix:               
+  max_tokens:           1024
+  n:                    1
+  stop_sequences:
+    - stop
+  best_of:              3
+  stream:               False
+  seed:                 246
+  frequency_penalty:
+  presence_penalty:
+  logit_bias:
+  logprobs:
+  top_logprobs:
+  temperature:          0.5
+  top_p:                0.5
+  user:
+"""
+responses = xai.grk_complete(prompt, **yl(kwargs))
+```
 
 ## Gemini
 I'm not sure whether the google Python SDK will have retries as Anthropic and OpenAI do. Because of that the REST versions of queries may be preferable for now (until the API will start failing under the uploads of million token contexts, then they will probably add retries, or will try to bundle the _**useless**_ GCP to this service). 
@@ -357,6 +397,8 @@ response = gem.gemini_message(yl(messages), **yl(kwargs))
 
 #### Gemini native messages
 ```python
+from symposium.connectors import gemini_rest as gem
+
 ```
 
 #### Completion
